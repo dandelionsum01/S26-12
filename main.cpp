@@ -8,7 +8,6 @@ int main()
 	cout << "Testing again" << endl;
 	cout << endl;
 	cout << endl;
-	cout << endl;
 	return 0;
 
 }
