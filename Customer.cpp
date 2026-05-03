@@ -125,8 +125,7 @@ void Customer::signin()
 	cout << "Enter password of Customer: \n";
 	cin >> password;
 	setPassword(password);
-	bool valid = checkPassword();
-	while (!valid)
+	while (checkPassword())
 	{
 		tries++;
 		if (tries == 3)
@@ -137,7 +136,6 @@ void Customer::signin()
 		cout << "\nWrong password entered, enter correct password: \n";
 		cin >> password;
 		setPassword(password);
-		valid = checkPassword();
 	}
 	cout << "\nCustomer login was successful\n";
 }
@@ -159,6 +157,7 @@ void Customer::signup()
 		fileEmpty = true;
 	}
 	fileIn.close();
+	bool usernamefound = findUsername();
 	while (findUsername())
 	{
 		system("cls");
@@ -286,7 +285,7 @@ int Customer::checkGeneric(string password, int& numGeneric)
 							foundGeneric = false;
 							break;
 						}
-						if (l == password.length() - 1)
+						if (k == storedGeneric[i].length() - 1)
 						{
 							reachedEnd = true;
 						}
