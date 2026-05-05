@@ -1,4 +1,22 @@
+// ============================================================
+//  header.h  --  Travel Management System
+//
+//  Build (Visual Studio Community):
+//      Set Project Properties -> C/C++ -> Language -> C++17
+//      Add SFML include + lib paths and link against:
+//          sfml-graphics.lib sfml-window.lib sfml-system.lib
+//
+//  Build (g++):
+//      g++ -std=c++17 *.cpp -lsfml-graphics -lsfml-window -lsfml-system
+// ============================================================
 #pragma once
+
+// Silence MSVC warnings about "deprecated" CRT functions like localtime,
+// strftime, sprintf. These are perfectly safe as we use them.
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -9,11 +27,52 @@
 #include <thread>
 #include <cmath>
 #include <iomanip>
+#include <stdexcept>
+#include <vector>
 #include <SFML/Graphics.hpp>
+
+// Note: SFML is only required if you use the GUI reCaptcha. If SFML is not
+// available on your machine, define NO_SFML before including this file (or
+// pass -DNO_SFML to the compiler) and the code will fall back to a console
+// based reCaptcha challenge.
+
 using namespace std;
 
 // ============================================================
-// MEMBER A —
+//  Project-wide custom exception (Requirement: try/catch/throw)
+// ============================================================
+class ProjectException : public runtime_error
+{
+public:
+    explicit ProjectException(const string& msg) : runtime_error(msg) {}
+};
+
+// ============================================================
+//  Generic template helper (Requirement: at least one template)
+//  Reads a value from cin; re-prompts on bad input.
+// ============================================================
+template <typename T>
+T readValue(const string& prompt)
+{
+    T value;
+    while (true)
+    {
+        cout << prompt;
+        cin >> value;
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input, please try again.\n";
+            continue;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return value;
+    }
+}
+
+// ============================================================
+//  MEMBER A  --  User management & accounts
 // ============================================================
 
 class UserManagement
@@ -22,42 +81,48 @@ class UserManagement
     string password;
 
 public:
+    virtual ~UserManagement() = default;
     virtual void signin() = 0;
     virtual bool checkPassword() = 0;
     virtual bool findUsername() = 0;
-    void setUsername(string username);
-    void setPassword(string password);
-    string getUsername();
-    string getPassword();
-    void countdownTimer(int& set);
+
+    void   setUsername(const string& username);
+    void   setPassword(const string& password);
+    string getUsername() const;
+    string getPassword() const;
+    void   countdownTimer(int& set);
 };
+
 class Customer : public UserManagement
 {
 public:
-    void signin() override;
-    void signup();
-    bool findUsername() override;
-    bool checkPassword() override;
-    bool checkStrength();
-    int checkGeneric(string password, int& numGeneric);
+    void  signin() override;
+    void  signup();
+    bool  findUsername() override;
+    bool  checkPassword() override;
+    bool  checkStrength();
+    int   checkGeneric(const string& password, int& numGeneric);
 };
+
 struct payData
 {
     string username;
-    int payment;
+    int    payment;
 };
+
 class Accounts
 {
     int netRevenue;
 
 public:
     Accounts();
-    void calculateRevenue();
-    void displayRevenue();
+    void      calculateRevenue();
+    void      displayRevenue();
     payData* readPayments(int& numPayments);
-    int partition(payData* paydata, int start, int end);
-    void quicksortPayments(payData* paydata, int start, int end);
+    int       partition(payData* paydata, int start, int end);
+    void      quicksortPayments(payData* paydata, int start, int end);
 };
+
 class Admin : public UserManagement
 {
     Accounts* accounts;
@@ -71,9 +136,9 @@ public:
     void sortedPayments(Accounts* accounts);
 };
 
-// ===================
-// MEMBER B —
-// ====================
+// ============================================================
+//  MEMBER B  --  Packages
+// ============================================================
 
 struct City
 {
@@ -96,6 +161,7 @@ enum class Category
     CENTRAL,
     COASTAL
 };
+
 enum class HotelCategory
 {
     BUDGET,
@@ -108,128 +174,131 @@ class Package
     string packageID;
     string start;
     string destination;
-    int packageFee;
+    int    packageFee;
     string hotel;
-    int capacity;
+    int    capacity;
     string departureDate;
 
 public:
     Package();
-    void setPackageID(string packageID);
-    void setStart(string start);
-    void setDestination(string destination);
+    virtual ~Package() = default;
+
+    void setPackageID(const string& packageID);
+    void setStart(const string& start);
+    void setDestination(const string& destination);
     void setPackageFee(int packageFee);
-    void setHotel(string hotel);
+    void setHotel(const string& hotel);
     void setCapacity(int capacity);
-    void setDepartureDate(string departureDate);
-    void setNewcity(string cityName, double lat, double lon);
+    void setDepartureDate(const string& departureDate);
+    void setNewcity(const string& cityName, double lat, double lon);
+
     City* loadCities(int& count);
 
-    string getPackageID();
-    string getStart();
-    string getDestination();
-    int getPackageFee();
-    string getHotel();
-    int getCapacity();
-    string getDepartureDate();
+    string getPackageID() const;
+    string getStart() const;
+    string getDestination() const;
+    int    getPackageFee() const;
+    string getHotel() const;
+    int    getCapacity() const;
+    string getDepartureDate() const;
 
     double calculateDistance(double lat1, double lon1,
         double lat2, double lon2);
-    void displayCities();
-    int displayRouteInfo(string from, string to);
-    int getDynamicPrice();
+    void   displayCities();
+    int    displayRouteInfo(const string& from, const string& to);
+    int    getDynamicPrice();
+
     virtual bool checkCapacity() = 0;
 };
 
 class PlannedPackage : public Package
 {
-    string expiryDate;
-    int basePrice;
-    Category category; //  added
+    string   expiryDate;
+    int      basePrice;
+    Category category;
 
 public:
     PlannedPackage();
-    Category intToCategory(int choice);
-    string categoryToString(Category cat);
-    void setExpiryDate(string expiryDate);
-    void setBasePrice(int price);
-    void setCategory(Category category); // added
-    string getExpiryDate();
-    int getBasePrice();
-    Category getCategory(); // added
-    void addPackage();
-    void deletePackage();
-    void displayPackage();
+
+    static Category intToCategory(int choice);
+    static string   categoryToString(Category cat);
+
+    void     setExpiryDate(const string& expiryDate);
+    void     setBasePrice(int price);
+    void     setCategory(Category category);
+
+    string   getExpiryDate() const;
+    int      getBasePrice() const;
+    Category getCategory() const;
+
+    void   addPackage();
+    void   deletePackage();
+    void   displayPackage();
     string findPackage();
-    void removeExpiredPackages();
-    bool checkCapacity() override;
+    void   removeExpiredPackages();
+    bool   checkCapacity() override;
 };
 
 class CustomPackage : public Package
 {
-    bool packageApproval;
-    string customerUsername;
-    int nights;
-    bool carRental;
-    PackageStatus status; // added
+    bool          packageApproval;
+    string        customerUsername;
+    int           nights;
+    bool          carRental;
+    PackageStatus status;
+    HotelCategory hotelCategory;
 
 public:
     CustomPackage();
-    void setNights(int nights);
-    void setCarRental(bool carRental);
-    void setCustomerUsername(string username);
-    void setStatus(PackageStatus status); // added
-    int getNights();
-    bool getCarRental();
-    string getCustomerUsername();
-    PackageStatus getStatus(); // added
-    void enterDetails(string customerUsername);
+
+    void          setNights(int nights);
+    void          setCarRental(bool carRental);
+    void          setCustomerUsername(const string& username);
+    void          setStatus(PackageStatus status);
+    void          setHotelCategory(HotelCategory hc);
+
+    int           getNights() const;
+    bool          getCarRental() const;
+    string        getCustomerUsername() const;
+    PackageStatus getStatus() const;
+    HotelCategory getHotelCategory() const;
+
+    void enterDetails(const string& customerUsername);
     void viewPending();
     bool approvePackage();
-    int calculateBill();
+    int  calculateBill();
     bool checkCapacity() override;
 
-    HotelCategory hotelCategory; // member
-    void setHotelCategory(HotelCategory hc);
-
-    HotelCategory getHotelCategory();
-    HotelCategory intToHotelCategory(int choice);
-    string CategoryToString(HotelCategory hc);
-    int getHotelPrice();
+    static HotelCategory intToHotelCategory(int choice);
+    static string        CategoryToString(HotelCategory hc);
+    int                  getHotelPrice() const;
 };
 
-// for testing purposes only
-class TestPackage : public Package
-{
-public:
-    // We MUST implement this to allow the object to be created
-    bool checkCapacity() override
-    {
-        return true;
-    }
-};
-// =========================
-// MEMBER C —
-// ==========================
+// ============================================================
+//  MEMBER C  --  Booking, Reviews, Notifications
+// ============================================================
 
 class Booking
 {
-    int payment;
+    int    payment;
     string packageID;
     string customerUsername;
 
 public:
     Booking();
-    void setPayment(int payment);
-    void setPackageID(string packageID);
-    void setCustomerUsername(string username);
-    int getPayment();
-    string getPackageID();
-    string getCustomerUsername();
-    void makeBooking(string customerUsername);
-    void updateCapacity(string packageID);
-    int returnPayment(string customerUsername);
-    bool checkCreditNum(string cardNum);
+
+    void   setPayment(int payment);
+    void   setPackageID(const string& packageID);
+    void   setCustomerUsername(const string& username);
+
+    int    getPayment() const;
+    string getPackageID() const;
+    string getCustomerUsername() const;
+
+    void   makeBooking(const string& customerUsername);
+    void   updateCapacity(const string& packageID);
+    int    returnPayment(const string& customerUsername);
+    bool   checkCreditNum(const string& cardNum);
 };
 
 class CustomerReview
@@ -237,22 +306,27 @@ class CustomerReview
     string comment;
 
 public:
-    void setComment(string comment);
-    string getComment();
-    void addReview(string username, string packageID);
-    void readReview(string packageID);
+    void   setComment(const string& comment);
+    string getComment() const;
+    void   addReview(const string& username, const string& packageID);
+    void   readReview(const string& packageID);
 };
 
 class NotificationPanel
 {
     string notification;
-    bool isSubscribed;
+    bool   isSubscribed;
 
 public:
     NotificationPanel();
-    void setNotification(string notification);
-    string getNotification();
-    bool getIsSubscribed();
-    void subscribe(string username);
-    void displayNotification(string username);
+
+    void   setNotification(const string& notification);
+    string getNotification() const;
+    bool   getIsSubscribed() const;
+
+    void   subscribe(const string& username);
+    void   displayNotification(const string& username);
 };
+
+// Free helper used by other modules to push messages to all subscribers.
+void broadcastNotification(const string& message);

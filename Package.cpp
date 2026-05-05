@@ -1,9 +1,5 @@
 ﻿#define _USE_MATH_DEFINES
-#include <iostream>
 #include "header.h"
-#include <fstream>
-#include <string>
-#include <cmath>
 using namespace std;
 
 Package::Package()
@@ -11,125 +7,85 @@ Package::Package()
     packageFee = 0;
     capacity = 0;
 }
-void Package::setPackageID(string packageID)
-{
-    this->packageID = packageID;
-}
-void Package::setStart(string start)
-{
-    this->start = start;
-}
-void Package::setDestination(string destination)
-{
-    this->destination = destination;
-}
-void Package::setPackageFee(int packageFee)
-{
-    this->packageFee = packageFee;
-}
-void Package::setHotel(string hotel)
-{
-    this->hotel = hotel;
-}
-void Package::setCapacity(int capacity)
-{
-    this->capacity = capacity;
-}
-void Package::setDepartureDate(string departureDate)
-{
-    this->departureDate = departureDate;
-}
-string Package::getPackageID()
-{
-    return packageID;
-}
-string Package::getStart()
-{
-    return start;
-}
-string Package::getDestination()
-{
-    return destination;
-}
-int Package::getPackageFee()
-{
-    return packageFee;
-}
-string Package::getHotel()
-{
-    return hotel;
-}
-int Package::getCapacity()
-{
-    return capacity;
-}
-string Package::getDepartureDate()
-{
-    return departureDate;
-}
+
+void Package::setPackageID(const string& packageID) { this->packageID = packageID; }
+void Package::setStart(const string& start) { this->start = start; }
+void Package::setDestination(const string& destination) { this->destination = destination; }
+void Package::setPackageFee(int packageFee) { this->packageFee = packageFee; }
+void Package::setHotel(const string& hotel) { this->hotel = hotel; }
+void Package::setCapacity(int capacity) { this->capacity = capacity; }
+void Package::setDepartureDate(const string& departureDate) { this->departureDate = departureDate; }
+
+string Package::getPackageID()      const { return packageID; }
+string Package::getStart()          const { return start; }
+string Package::getDestination()    const { return destination; }
+int    Package::getPackageFee()     const { return packageFee; }
+string Package::getHotel()          const { return hotel; }
+int    Package::getCapacity()       const { return capacity; }
+string Package::getDepartureDate()  const { return departureDate; }
+
 double Package::calculateDistance(double lat1, double lon1,
     double lat2, double lon2)
 {
-    lat1 *= M_PI / 180.0; // M_PI needs library cmath
+    lat1 *= M_PI / 180.0;
     lat2 *= M_PI / 180.0;
     lon1 *= M_PI / 180.0;
     lon2 *= M_PI / 180.0;
-    const double R = 6371; // Earth radius in km
+    const double R = 6371.0;
     double dLat = (lat2 - lat1);
     double dLon = (lon2 - lon1);
-    double a = pow(sin(dLat / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(dLon / 2), 2);
+    double a = pow(sin(dLat / 2.0), 2) +
+        cos(lat1) * cos(lat2) * pow(sin(dLon / 2.0), 2);
     double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    double d = R * c;
-    return d;
+    return R * c;
 }
-void Package::setNewcity(string cityName, double lat, double lon)
-{
 
-    // checing if city already exists
-    bool isEmpty = 0;
-    ifstream checkFile("cities.csv");
-    if (checkFile.is_open())
+void Package::setNewcity(const string& cityName, double lat, double lon)
+{
+    bool isEmpty = false;
+
     {
-        checkFile.seekg(0, ios::end); ////chhecking if file is empty
-        isEmpty = (checkFile.tellg() == 0);
-        if (isEmpty == 1)
+        ifstream checkFile("cities.csv");
+        if (checkFile.is_open())
         {
-            checkFile.close();
+            checkFile.seekg(0, ios::end);
+            isEmpty = (checkFile.tellg() == 0);
+
+            if (!isEmpty)
+            {
+                checkFile.clear();
+                checkFile.seekg(0, ios::beg);
+                string line;
+                getline(checkFile, line); // header
+                while (getline(checkFile, line))
+                {
+                    stringstream ss(line);
+                    string name;
+                    getline(ss, name, ',');
+                    if (name == cityName)
+                    {
+                        cout << cityName << " already exists!\n";
+                        return;
+                    }
+                }
+            }
         }
         else
         {
-            string line;
-            getline(checkFile, line); // skip header
-            while (getline(checkFile, line))
-            {
-                stringstream ss(line);
-                string name;
-                getline(ss, name, ',');
-                if (name == cityName)
-                {
-                    cout << cityName << " already exists!\n";
-                    checkFile.close();
-                    return;
-                }
-            }
-            checkFile.close();
+            isEmpty = true;
         }
     }
 
-    //  header only if file is empty
     ofstream cityFile("cities.csv", ios::app);
     if (!cityFile.is_open())
     {
-        cout << "Cannot open cityFile!\n";
+        cout << "Cannot open cities.csv!\n";
         return;
     }
 
     if (isEmpty)
-    {
-        cityFile << "City Name,Latitude,Longitude\n"; // header once
-    }
+        cityFile << "City Name,Latitude,Longitude\n";
 
-    //  Append the new city
     cityFile << cityName << "," << lat << "," << lon << "\n";
     cityFile.close();
     cout << "City '" << cityName << "' added!\n";
@@ -137,44 +93,56 @@ void Package::setNewcity(string cityName, double lat, double lon)
 
 City* Package::loadCities(int& count)
 {
+    count = 0;
     ifstream cityFile("cities.csv");
     if (!cityFile.is_open())
     {
-        cout << "Cannot open cityFile!\n";
-        count = 0;
+        cout << "Cannot open cities.csv!\n";
         return nullptr;
     }
 
     string line;
-    getline(cityFile, line); // skip header
+    getline(cityFile, line); // header
     while (getline(cityFile, line))
     {
-        count++;
+        if (!line.empty()) count++;
     }
     cityFile.close();
 
-    City* cities = new City[count];
+    if (count == 0) return nullptr;
 
+    City* cities = new City[count];
     ifstream cityFile2("cities.csv");
     int i = 0;
-    getline(cityFile2, line);
-    while (getline(cityFile2, line))
+    getline(cityFile2, line); // header
+    while (getline(cityFile2, line) && i < count)
     {
-        string lat, lon;
-        string name;
+        if (line.empty()) continue;
+
         stringstream ss(line);
-        getline(ss, cities[i].name, ',');
+        string name, lat, lon;
+        getline(ss, name, ',');
         getline(ss, lat, ',');
         getline(ss, lon, ',');
-        cities[i].lat = stod(lat); // string to double
-        cities[i].lon = stod(lon);
-        i++;
+
+        try
+        {
+            cities[i].name = name;
+            cities[i].lat = stod(lat);
+            cities[i].lon = stod(lon);
+            i++;
+        }
+        catch (const exception&)
+        {
+            // Skip malformed row
+        }
     }
     cityFile2.close();
+    count = i;
     return cities;
 }
 
-int Package::displayRouteInfo(string From, string To)
+int Package::displayRouteInfo(const string& From, const string& To)
 {
     int count = 0;
     City* cities = loadCities(count);
@@ -183,39 +151,35 @@ int Package::displayRouteInfo(string From, string To)
         cout << "No cities found!\n";
         return 0;
     }
-    City fromCity, toCity; //
+
+    City fromCity{}, toCity{};
     bool fromFound = false, toFound = false;
     for (int i = 0; i < count; i++)
     {
-        if (cities[i].name == From) // if cityname  matches
-        {
-            fromCity = cities[i]; // then all atributs of that city are stored in fromCity
-            fromFound = true;
-        }
-        if (cities[i].name == To)
-        {
-            toCity = cities[i];
-            toFound = true;
-        }
+        if (cities[i].name == From) { fromCity = cities[i]; fromFound = true; }
+        if (cities[i].name == To) { toCity = cities[i]; toFound = true; }
     }
-    delete[] cities; // freeing the heap of loaded cities
+    delete[] cities;
+
     if (!fromFound || !toFound)
-    { // if either city is not found
+    {
         cout << "City not found!\n";
         return 0;
     }
-    double distance = calculateDistance(fromCity.lat, fromCity.lon, toCity.lat, toCity.lon);
-    double travelTime = distance / 80.0;              // eg 10.17 hrs
-    int Travelhours = (int)travelTime;                // eg 10
-    int Travelmins = (travelTime - Travelhours) * 60; // 10 minutes
-    double FuelPerLitre = 390;
-    double FuelEfficiency = 5;                                 // 5km per litre
-    int FuelCost = (distance / FuelEfficiency) * FuelPerLitre; // eg 3120
+
+    double distance = calculateDistance(fromCity.lat, fromCity.lon,
+        toCity.lat, toCity.lon);
+    double travelTime = distance / 80.0;
+    int    Travelhours = static_cast<int>(travelTime);
+    int    Travelmins = static_cast<int>((travelTime - Travelhours) * 60);
+    double FuelPerLitre = 390.0;
+    double FuelEfficiency = 5.0;
+    int    FuelCost = static_cast<int>((distance / FuelEfficiency) * FuelPerLitre);
 
     cout << "\n--- Route Information ---\n";
     cout << "From:        " << From << "\n";
     cout << "To:          " << To << "\n";
-    cout << "Distance:    " << (int)distance << " km\n";
+    cout << "Distance:    " << static_cast<int>(distance) << " km\n";
     cout << "Travel Time: ~" << Travelhours << " hrs " << Travelmins << " mins\n";
     cout << "Fuel Cost:   Rs. " << FuelCost << "\n";
     cout << "-------------------------\n";
@@ -226,7 +190,12 @@ void Package::displayCities()
 {
     int count = 0;
     City* cities = loadCities(count);
-    if (count == 0) { cout << "No cities found!\n"; return; }
+    if (count == 0)
+    {
+        cout << "No cities found!\n";
+        delete[] cities;
+        return;
+    }
 
     cout << "\n--- Available Cities ---\n";
     for (int i = 0; i < count; i++)
@@ -237,8 +206,7 @@ void Package::displayCities()
 
 int Package::getDynamicPrice()
 {
-    // if more than 80% booked → increase price by 20%
-    // if less than 50% booked → decrease price by 10%
-    //waiting for member 3 booking
+    // Dynamic pricing logic is centralised in Booking::makeBooking
+    // (which has live capacity info from bookings.csv).
     return getPackageFee();
 }

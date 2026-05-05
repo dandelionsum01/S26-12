@@ -1,104 +1,82 @@
 ﻿// ============================================================
-// MEMBER C  —  Review.cpp
-// Produces:    reviews.csv
-//
-// reviews.csv columns:
-//   ReviewID, Username, PackageID, Comment, Date
+//  Review.cpp
+//  Reads:    bookings.csv, reviews.csv
+//  Writes:   reviews.csv
 // ============================================================
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <ctime>
 #include "header.h"
 using namespace std;
 
-// ─── tiny helpers (local to this translation unit) ───────────────────────────
-
-static string trimWSR(string s)
+namespace
 {
-    while (!s.empty() && (s.back() == '\r' || s.back() == '\n' ||
-        s.back() == ' ' || s.back() == '\t'))
-        s.pop_back();
-    return s;
-}
-
-static string todayStrR()
-{
-    time_t t = time(0);
-    tm* now = localtime(&t);
-    char   buf[20];
-    strftime(buf, sizeof(buf), "%Y-%m-%d", now);
-    return string(buf);
-}
-
-// Check whether the customer has an existing booking for this package.
-// Returns true if a booking is found in bookings.csv.
-static bool hasBooking(const string& username, const string& packageID)
-{
-    ifstream f("bookings.csv");
-    if (!f.is_open()) return false;
-
-    string line;
-    getline(f, line);               // skip header
-
-    while (getline(f, line))
+    string trimWSR(string s)
     {
-        stringstream ss(line);
-        string bid, uname, pkgID;
-        getline(ss, bid, ',');
-        getline(ss, uname, ',');
-        getline(ss, pkgID, ',');
-        if (trimWSR(uname) == username && trimWSR(pkgID) == packageID)
-        {
-            f.close();
-            return true;
-        }
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n' ||
+            s.back() == ' ' || s.back() == '\t'))
+            s.pop_back();
+        return s;
     }
-    f.close();
-    return false;
-}
 
-// Generate a sequential review ID.
-static string generateReviewID()
-{
-    int count = 0;
-    ifstream f("reviews.csv");
-    if (f.is_open())
+    string todayStrR()
     {
+        time_t t = time(0);
+        tm* now = localtime(&t);
+        char   buf[20];
+        strftime(buf, sizeof(buf), "%Y-%m-%d", now);
+        return string(buf);
+    }
+
+    bool hasBooking(const string& username, const string& packageID)
+    {
+        ifstream f("bookings.csv");
+        if (!f.is_open()) return false;
+
         string line;
-        getline(f, line);           // skip header
-        while (getline(f, line)) count++;
-        f.close();
+        getline(f, line); // header
+
+        while (getline(f, line))
+        {
+            stringstream ss(line);
+            string bid, uname, pkgID;
+            getline(ss, bid, ',');
+            getline(ss, uname, ',');
+            getline(ss, pkgID, ',');
+            if (trimWSR(uname) == username && trimWSR(pkgID) == packageID)
+                return true;
+        }
+        return false;
     }
-    return "RV-" + to_string(count + 1);
+
+    string generateReviewID()
+    {
+        int count = 0;
+        ifstream f("reviews.csv");
+        if (f.is_open())
+        {
+            string line;
+            getline(f, line); // header
+            while (getline(f, line)) if (!line.empty()) count++;
+        }
+        return "RV-" + to_string(count + 1);
+    }
 }
 
-// ─── Setters / Getters ────────────────────────────────────────────────────────
+void   CustomerReview::setComment(const string& c) { comment = c; }
+string CustomerReview::getComment() const { return comment; }
 
-void CustomerReview::setComment(string c) { comment = c; }
-string CustomerReview::getComment() { return comment; }
-
-// ─── addReview ───────────────────────────────────────────────────────────────
-// Lets a customer leave a review for a package they have booked.
-void CustomerReview::addReview(string username, string packageID)
+void CustomerReview::addReview(const string& username, const string& packageID)
 {
-    // ── 1. Verify the customer actually booked this package ──────────────────
     if (!hasBooking(username, packageID))
     {
         cout << "You can only review a package you have booked.\n";
         return;
     }
 
-    // ── 2. Prevent duplicate reviews ────────────────────────────────────────
     {
         ifstream f("reviews.csv");
         if (f.is_open())
         {
             string line;
-            getline(f, line);           // skip header
+            getline(f, line); // header
             while (getline(f, line))
             {
                 stringstream ss(line);
@@ -109,26 +87,22 @@ void CustomerReview::addReview(string username, string packageID)
                 if (trimWSR(uname) == username && trimWSR(pkgID) == packageID)
                 {
                     cout << "You have already reviewed this package.\n";
-                    f.close();
                     return;
                 }
             }
-            f.close();
         }
     }
 
-    // ── 3. Collect the review text (allow spaces) ────────────────────────────
     cout << "\n--- Write Your Review for Package: " << packageID << " ---\n";
     string reviewText;
-    cin.ignore();
+    // Drain a possible pending newline (caller may have used cin >>)
+    if (cin.peek() == '\n') cin.ignore();
     cout << "Your comment: ";
     getline(cin, reviewText);
 
-    // Replace any commas in the comment with semicolons to keep CSV safe
     for (char& c : reviewText)
         if (c == ',') c = ';';
 
-    // ── 4. Write to reviews.csv ──────────────────────────────────────────────
     bool isEmpty = true;
     {
         ifstream chk("reviews.csv");
@@ -136,7 +110,6 @@ void CustomerReview::addReview(string username, string packageID)
         {
             chk.seekg(0, ios::end);
             isEmpty = (chk.tellg() == 0);
-            chk.close();
         }
     }
 
@@ -162,9 +135,7 @@ void CustomerReview::addReview(string username, string packageID)
     cout << "Review submitted successfully! (ID: " << reviewID << ")\n";
 }
 
-// ─── readReview ──────────────────────────────────────────────────────────────
-// Displays all reviews for the given packageID.
-void CustomerReview::readReview(string packageID)
+void CustomerReview::readReview(const string& packageID)
 {
     ifstream f("reviews.csv");
     if (!f.is_open())
@@ -174,10 +145,9 @@ void CustomerReview::readReview(string packageID)
     }
 
     string line;
-    getline(f, line);               // skip header
+    getline(f, line); // header
 
     bool found = false;
-
     cout << "\n========== Reviews for Package: " << packageID << " ==========\n";
 
     while (getline(f, line))
@@ -200,7 +170,6 @@ void CustomerReview::readReview(string packageID)
             cout << string(55, '-') << "\n";
         }
     }
-    f.close();
 
     if (!found)
         cout << "No reviews yet for this package.\n";

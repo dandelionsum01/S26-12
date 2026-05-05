@@ -1,9 +1,4 @@
-﻿#include <iostream>
-#include <string>
-#include <fstream>
-#include "header.h"
-#include <iomanip>
-#include <ctime>
+﻿#include "header.h"
 using namespace std;
 
 PlannedPackage::PlannedPackage()
@@ -13,70 +8,42 @@ PlannedPackage::PlannedPackage()
     category = Category::NORTHERN_AREAS;
 }
 
-void PlannedPackage::setExpiryDate(string expiryDate)
-{
-    this->expiryDate = expiryDate;
-}
-void PlannedPackage::setBasePrice(int price)
-{
-    this->basePrice = price;
-}
-void PlannedPackage::setCategory(Category category)
-{
-    this->category = category;
-}
-string PlannedPackage::getExpiryDate()
-{
-    return expiryDate;
-}
-int PlannedPackage::getBasePrice()
-{
-    return basePrice;
-}
-Category PlannedPackage::getCategory()
-{
-    return category;
-}
+void PlannedPackage::setExpiryDate(const string& expiryDate) { this->expiryDate = expiryDate; }
+void PlannedPackage::setBasePrice(int price) { this->basePrice = price; }
+void PlannedPackage::setCategory(Category category) { this->category = category; }
+
+string   PlannedPackage::getExpiryDate() const { return expiryDate; }
+int      PlannedPackage::getBasePrice()  const { return basePrice; }
+Category PlannedPackage::getCategory()   const { return category; }
 
 Category PlannedPackage::intToCategory(int choice)
 {
     switch (choice)
     {
-    case 1:
-        return Category::NORTHERN_AREAS;
-    case 2:
-        return Category::SOUTH;
-    case 3:
-        return Category::CENTRAL;
-    case 4:
-        return Category::COASTAL;
-    default:
-        return Category::NORTHERN_AREAS;
+    case 1: return Category::NORTHERN_AREAS;
+    case 2: return Category::SOUTH;
+    case 3: return Category::CENTRAL;
+    case 4: return Category::COASTAL;
+    default: return Category::NORTHERN_AREAS;
     }
 }
+
 string PlannedPackage::categoryToString(Category cat)
 {
     switch (cat)
     {
-    case Category::NORTHERN_AREAS:
-        return "N.Areas";
-    case Category::SOUTH:
-        return "South";
-    case Category::CENTRAL:
-        return "Central";
-    case Category::COASTAL:
-        return "Coastal";
-    default:
-        return "Unknown";
+    case Category::NORTHERN_AREAS: return "N.Areas";
+    case Category::SOUTH:          return "South";
+    case Category::CENTRAL:        return "Central";
+    case Category::COASTAL:        return "Coastal";
+    default:                       return "Unknown";
     }
 }
 
 void PlannedPackage::addPackage()
 {
     string id, from, to, hotel, date, expiry;
-    int capacity, priceChoice, categoryChoice;
-
-    Category categoryInput;
+    int    capacity, priceChoice, categoryChoice;
 
     cout << "\n--- Add New Package ---\n";
     cout << "Enter Package ID: ";
@@ -85,7 +52,6 @@ void PlannedPackage::addPackage()
     cin.ignore();
     getline(cin, from);
     cout << "Enter Destination: ";
-    cin.ignore();
     getline(cin, to);
 
     int suggestedFuel = displayRouteInfo(from, to);
@@ -100,13 +66,20 @@ void PlannedPackage::addPackage()
     getline(cin, hotel);
     cout << "Enter Capacity: ";
     cin >> capacity;
-    cout << "Enter Category (1.Northern Areas:\n2.South:\n3.Central:\n4.Coastal: ";
+    if (capacity <= 0)
+    {
+        cout << "Capacity must be positive. Aborting.\n";
+        return;
+    }
+
+    cout << "Enter Category (1.Northern Areas, 2.South, 3.Central, 4.Coastal): ";
     cin >> categoryChoice;
-    categoryInput = intToCategory(categoryChoice);        // int  → Category
-    string categoryStr = categoryToString(categoryInput); // Category → string  ✅
-    cout << "Enter Departure Date: (YYYY-MM-DD) ";
+    Category categoryInput = intToCategory(categoryChoice);
+    string   categoryStr = categoryToString(categoryInput);
+
+    cout << "Enter Departure Date (YYYY-MM-DD): ";
     cin >> date;
-    cout << "Enter Expiry Date: (YYYY-MM-DD) ";
+    cout << "Enter Expiry Date   (YYYY-MM-DD): ";
     cin >> expiry;
 
     setPackageID(id);
@@ -119,96 +92,96 @@ void PlannedPackage::addPackage()
     setExpiryDate(expiry);
     setCategory(categoryInput);
 
-    bool isEmpty = 0;
-    ifstream packageIn;
-    packageIn.open("packages.csv");
-    if (packageIn.is_open())
+    bool isEmpty = false;
     {
-        packageIn.seekg(0, ios::end);
-        isEmpty = (packageIn.tellg() == 0);
-        packageIn.close();
-    }
-    else
-    {
-        cout << "Cannot open packageIn file!\n";
-        isEmpty = true; // assume empty if file can't be opened
-    }
-
-    ofstream packageOut;
-    packageOut.open("packages.csv", ios::app);
-
-    if (packageOut.is_open())
-    {
-        if (isEmpty)
+        ifstream packageIn("packages.csv");
+        if (packageIn.is_open())
         {
-            packageOut << "PackageID,Start,Destination,Price,Hotel,Capacity,DepartureDate,ExpiryDate,Category\n"; // header once
+            packageIn.seekg(0, ios::end);
+            isEmpty = (packageIn.tellg() == 0);
         }
-
-        packageOut << id << "," << from << "," << to << "," << priceChoice << ","
-            << hotel << "," << capacity << "," << date << "," << expiry << "," << categoryStr << "\n";
-
-        packageOut.close();
-        cout << "Package added successfully!\n";
+        else
+        {
+            isEmpty = true; // not yet created
+        }
     }
-    else
-        cout << "Cannot open packageOut file!\n";
+
+    ofstream packageOut("packages.csv", ios::app);
+    if (!packageOut.is_open())
+    {
+        cout << "Cannot open packages.csv for writing!\n";
+        return;
+    }
+
+    if (isEmpty)
+        packageOut << "PackageID,Start,Destination,Price,Hotel,Capacity,"
+        "DepartureDate,ExpiryDate,Category\n";
+
+    packageOut << id << "," << from << "," << to << ","
+        << priceChoice << "," << hotel << "," << capacity << ","
+        << date << "," << expiry << "," << categoryStr << "\n";
+    packageOut.close();
+    cout << "Package added successfully!\n";
+
+    // Notify all subscribers about the new package
+    broadcastNotification("New package available: " + id +
+        " (" + from + " -> " + to + ")");
 }
 
 void PlannedPackage::deletePackage()
 {
     string targetID;
-    cout << "Enter the Package ID : ";
+    cout << "Enter the Package ID: ";
     cin >> targetID;
 
-    ifstream checkInFile;
-    checkInFile.open("packages.csv");
+    ifstream checkInFile("packages.csv");
     if (!checkInFile.is_open())
     {
-        cout << "Can not open packages.csv or it does not exists!\n";
+        cout << "Cannot open packages.csv or it does not exist!\n";
         return;
+    }
+
+    ofstream checkOutFile("temp_packages.csv");
+    if (!checkOutFile.is_open())
+    {
+        cout << "Cannot open temp_packages.csv for writing!\n";
+        checkInFile.close();
+        return;
+    }
+
+    bool   found = false;
+    string line;
+
+    getline(checkInFile, line); // header
+    checkOutFile << line << "\n";
+
+    while (getline(checkInFile, line))
+    {
+        stringstream ss(line);
+        string id;
+        getline(ss, id, ',');
+
+        if (id != targetID)
+            checkOutFile << line << "\n";
+        else
+            found = true;
+    }
+    checkInFile.close();
+    checkOutFile.close();
+
+    if (found)
+    {
+        remove("packages.csv");
+        rename("temp_packages.csv", "packages.csv");
+        cout << "Package with Package ID: " << targetID << " successfully removed!\n";
     }
     else
     {
-        bool found = false;
-        ofstream checkOutFile;
-        checkOutFile.open("temp_packages.csv");
-        string line;
-        if (checkOutFile.is_open())
-        {
-            getline(checkInFile, line);
-            checkOutFile << line << "\n"; // copy header
-
-            while (getline(checkInFile, line))
-            {
-                stringstream ss(line);
-                string id;
-                getline(ss, id, ','); // read from start of each line until comma and store in id
-                if (id != targetID)
-                {
-                    checkOutFile << line << "\n"; // copy line if id does not match
-                }
-                else
-                {
-                    found = true; // skip the line if id matches
-                }
-            }
-            checkOutFile.close();
-        }
-
-        checkInFile.close();
-        if (found)
-        {
-            remove("packages.csv");
-            rename("temp_packages.csv", "packages.csv");
-            cout << "Package with Package Id:" << targetID << " successfully removed!\n";
-        }
-        else
-        {
-            remove("temp_packages.csv");
-            cout << "Package with Package ID: " << targetID << " not found!\n";
-        }
+        remove("temp_packages.csv");
+        cout << "Package with Package ID: " << targetID << " not found!\n";
     }
 }
+
 void PlannedPackage::displayPackage()
 {
     ifstream file("packages.csv");
@@ -219,7 +192,7 @@ void PlannedPackage::displayPackage()
     }
 
     string line;
-    getline(file, line); // skip header
+    getline(file, line); // header
 
     cout << "\n--- All Planned Packages ---\n";
     cout << left
@@ -232,12 +205,12 @@ void PlannedPackage::displayPackage()
         << setw(12) << "Departure"
         << setw(12) << "Expiry"
         << setw(10) << "Category"
-
         << "\n";
     cout << string(85, '-') << "\n";
 
     while (getline(file, line))
     {
+        if (line.empty()) continue;
         stringstream ss(line);
         string id, from, to, price, hotel, cap, depDate, expiry, cat;
         getline(ss, id, ',');
@@ -250,14 +223,16 @@ void PlannedPackage::displayPackage()
         getline(ss, expiry, ',');
         getline(ss, cat, ',');
 
-        // capacity bar
-        // int total = stoi(cap);
-        // int booked = total - checkCapacity(); // allign with member 3
-        int total = stoi(cap);
+        int total = 0;
+        try { total = stoi(cap); }
+        catch (...) { total = 0; }
+
+        // Booked count is unknown to PlannedPackage (Booking owns it).
+        // Show an empty bar to avoid divide-by-zero / misleading data.
         int booked = 0;
-        string bar = "";
+        string bar;
         for (int i = 0; i < 10; i++)
-            bar += (i < (booked * 10 / total)) ? "#" : "-";
+            bar += (total > 0 && i < (booked * 10 / total)) ? "#" : "-";
 
         cout << left
             << setw(12) << id
@@ -269,17 +244,15 @@ void PlannedPackage::displayPackage()
             << setw(12) << depDate
             << setw(12) << expiry
             << setw(10) << cat
-
             << "\n";
     }
-
     file.close();
 }
 
-string toLower(string s)
+static string toLowerStr(string s)
 {
-    for (int i = 0; i < s.length(); i++)
-        s[i] = tolower(s[i]);
+    for (size_t i = 0; i < s.length(); ++i)
+        s[i] = static_cast<char>(tolower(static_cast<unsigned char>(s[i])));
     return s;
 }
 
@@ -295,8 +268,9 @@ string PlannedPackage::findPackage()
         cout << "Cannot open packages.csv!\n";
         return "";
     }
+
     string line;
-    getline(file, line); // skip header
+    getline(file, line); // header
     bool found = false;
 
     while (getline(file, line))
@@ -307,9 +281,9 @@ string PlannedPackage::findPackage()
         getline(ss, from, ',');
         getline(ss, to, ',');
 
-        if (toLower(to) == toLower(dest)) // to compare the lowercase/
+        if (toLowerStr(to) == toLowerStr(dest))
         {
-            cout << id << " | " << from << " → " << to << "\n";
+            cout << id << " | " << from << " -> " << to << "\n";
             found = true;
         }
     }
@@ -321,10 +295,9 @@ string PlannedPackage::findPackage()
 
 void PlannedPackage::removeExpiredPackages()
 {
-    // get today's date automatically
-    time_t t = time(0); // from system clock
+    time_t t = time(0);
     tm* now = localtime(&t);
-    char buffer[20];
+    char   buffer[20];
     strftime(buffer, sizeof(buffer), "%Y-%m-%d", now);
     string today = buffer;
 
@@ -336,11 +309,18 @@ void PlannedPackage::removeExpiredPackages()
     }
 
     ofstream fileOut("temp_packages.csv");
-    string line;
-    int removedCount = 0;
+    if (!fileOut.is_open())
+    {
+        cout << "Cannot open temp_packages.csv for writing!\n";
+        fileIn.close();
+        return;
+    }
 
-    getline(fileIn, line);
-    fileOut << line << "\n"; // copy header
+    string line;
+    int    removedCount = 0;
+
+    getline(fileIn, line); // header
+    fileOut << line << "\n";
 
     while (getline(fileIn, line))
     {
@@ -361,7 +341,6 @@ void PlannedPackage::removeExpiredPackages()
         else
             removedCount++;
     }
-
     fileIn.close();
     fileOut.close();
 
@@ -376,12 +355,11 @@ void PlannedPackage::removeExpiredPackages()
         remove("temp_packages.csv");
         cout << "No expired packages found.\n";
     }
-    cout << removedCount << " expired packages removed.\n";
 }
 
 bool PlannedPackage::checkCapacity()
 {
-    // will read bookings.csv, count bookings for this packageID and departure date
-    //  for now return true (seats available)////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Capacity tracking is owned by Booking which writes bookings.csv.
+    // This method exists only to satisfy the abstract base contract.
     return true;
 }

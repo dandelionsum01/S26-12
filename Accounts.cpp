@@ -1,79 +1,208 @@
 #include "header.h"
 using namespace std;
+
 Accounts::Accounts()
 {
 	netRevenue = 0;
 }
+
 void Accounts::calculateRevenue()
 {
-	int payment, delimPos;
-	string line;
-	ifstream fileIn("BookingPayments.csv");
-	if (!fileIn.is_open())
+	netRevenue = 0; // reset every call so repeated calls don't double-count
+
+	// ---- Read seed payments from BookingPayments.csv ----
 	{
-		cout << "Error: File failed to open\n";
-		return;
+		ifstream fileIn("BookingPayments.csv");
+		if (fileIn.is_open())
+		{
+			string line;
+			getline(fileIn, line); // header
+			while (getline(fileIn, line))
+			{
+				if (line.empty()) continue; // skip blank trailing line
+
+				int payment = 0;
+				int delimPos = 0;
+
+				// walk to the first comma
+				for (int i = 0; i < (int)line.length() && line[i] != ','; i++)
+					delimPos++;
+
+				// payment is the column AFTER the first comma, BEFORE the second
+				for (int i = delimPos + 1; i < (int)line.length() && line[i] != ','; i++)
+				{
+					if (line[i] >= '0' && line[i] <= '9')
+						payment = payment * 10 + (line[i] - '0');
+				}
+				netRevenue += payment;
+			}
+			fileIn.close();
+		}
 	}
-	getline(fileIn, line);
-	while (getline(fileIn, line))
+
+	// ---- Also include live bookings from bookings.csv ----
+	// bookings.csv columns: BookingID,CustomerUsername,PackageID,DepartureDate,Payment,BookingDate
+	// payment is the 5th column (index 4)
 	{
-		payment = 0;
-		delimPos = 0;
-		for (int i = 0; line[i] != ','; i++)
+		ifstream fileIn("bookings.csv");
+		if (fileIn.is_open())
 		{
-			delimPos++;
+			string line;
+			getline(fileIn, line); // header
+			while (getline(fileIn, line))
+			{
+				if (line.empty()) continue;
+
+				// skip the first 4 commas
+				int commaCount = 0;
+				int i = 0;
+				while (i < (int)line.length() && commaCount < 4)
+				{
+					if (line[i] == ',') commaCount++;
+					i++;
+				}
+
+				int payment = 0;
+				for (; i < (int)line.length() && line[i] != ','; i++)
+				{
+					if (line[i] >= '0' && line[i] <= '9')
+						payment = payment * 10 + (line[i] - '0');
+				}
+				netRevenue += payment;
+			}
+			fileIn.close();
 		}
-		for (int i = delimPos + 1; line[i] != ','; i++)
-		{
-			payment = payment * 10 + (line[i] - '0');
-		}
-		netRevenue += payment;
 	}
-	fileIn.close();
 }
+
 void Accounts::displayRevenue()
 {
 	cout << "\nNet Revenue: " << netRevenue << "\n";
 }
+
 payData* Accounts::readPayments(int& numPayments)
 {
-	int payment, delimPos = 0, payIn = 0;
-	payData* paydata;
-	string line;
-	ifstream fileIn("BookingPayments.csv");
-	if (!fileIn.is_open())
+	numPayments = 0; // initialize to 0 (caller may have passed any value)
+
+	// ---- First pass: count rows in BOTH files ----
+	int seedRows = 0;
 	{
-		cout << "\nError: File failed to open\n";
+		ifstream f("BookingPayments.csv");
+		if (f.is_open())
+		{
+			string line;
+			getline(f, line); // header
+			while (getline(f, line))
+				if (!line.empty()) seedRows++;
+			f.close();
+		}
+	}
+
+	int liveRows = 0;
+	{
+		ifstream f("bookings.csv");
+		if (f.is_open())
+		{
+			string line;
+			getline(f, line); // header
+			while (getline(f, line))
+				if (!line.empty()) liveRows++;
+			f.close();
+		}
+	}
+
+	numPayments = seedRows + liveRows;
+	if (numPayments == 0)
 		return nullptr;
-	}
-	getline(fileIn, line);
-	while (getline(fileIn, line))
+
+	payData* paydata = new payData[numPayments];
+	int payIn = 0;
+
+	// ---- Second pass: fill array from BookingPayments.csv ----
 	{
-		numPayments++;
+		ifstream fileIn("BookingPayments.csv");
+		if (fileIn.is_open())
+		{
+			string line;
+			getline(fileIn, line); // header
+			while (getline(fileIn, line) && payIn < numPayments)
+			{
+				if (line.empty()) continue;
+
+				int delimPos = 0;
+				int payment = 0;
+
+				paydata[payIn].username = "";
+				for (int i = 0; i < (int)line.length() && line[i] != ','; i++)
+				{
+					paydata[payIn].username += line[i];
+					delimPos++;
+				}
+				for (int i = delimPos + 1; i < (int)line.length() && line[i] != ','; i++)
+				{
+					if (line[i] >= '0' && line[i] <= '9')
+						payment = payment * 10 + (line[i] - '0');
+				}
+				paydata[payIn].payment = payment;
+				payIn++;
+			}
+			fileIn.close();
+		}
 	}
-	paydata = new payData[numPayments];
-	fileIn.clear();
-	fileIn.seekg(0, ios::beg);
-	getline(fileIn, line);
-	while (getline(fileIn, line))
+
+	// ---- Second pass: fill array from bookings.csv ----
+	// columns: BookingID,CustomerUsername,PackageID,DepartureDate,Payment,BookingDate
 	{
-		delimPos = 0;
-		payment = 0;
-		for (int i = 0; line[i] != ','; i++)
+		ifstream fileIn("bookings.csv");
+		if (fileIn.is_open())
 		{
-			paydata[payIn].username = paydata[payIn].username + line[i];
-			delimPos++;
+			string line;
+			getline(fileIn, line); // header
+			while (getline(fileIn, line) && payIn < numPayments)
+			{
+				if (line.empty()) continue;
+
+				// 1st field: BookingID  -> skip
+				int i = 0;
+				while (i < (int)line.length() && line[i] != ',') i++;
+				if (i < (int)line.length()) i++; // step past the comma
+
+				// 2nd field: CustomerUsername  -> store as username
+				paydata[payIn].username = "";
+				while (i < (int)line.length() && line[i] != ',')
+				{
+					paydata[payIn].username += line[i];
+					i++;
+				}
+				if (i < (int)line.length()) i++;
+
+				// 3rd field: PackageID  -> skip
+				while (i < (int)line.length() && line[i] != ',') i++;
+				if (i < (int)line.length()) i++;
+
+				// 4th field: DepartureDate -> skip
+				while (i < (int)line.length() && line[i] != ',') i++;
+				if (i < (int)line.length()) i++;
+
+				// 5th field: Payment
+				int payment = 0;
+				while (i < (int)line.length() && line[i] != ',')
+				{
+					if (line[i] >= '0' && line[i] <= '9')
+						payment = payment * 10 + (line[i] - '0');
+					i++;
+				}
+				paydata[payIn].payment = payment;
+				payIn++;
+			}
+			fileIn.close();
 		}
-		for (int i = delimPos + 1; line[i] != ','; i++)
-		{
-			payment = payment * 10 + (line[i] - '0');
-		}
-		paydata[payIn].payment = payment;
-		payIn++;
 	}
-	fileIn.close();
+
+	numPayments = payIn; // actual filled count (in case some rows were skipped)
 	return paydata;
 }
+
 int Accounts::partition(payData* paydata, int start, int end)
 {
 	int pivot = paydata[end].payment;
@@ -94,12 +223,12 @@ int Accounts::partition(payData* paydata, int start, int end)
 	paydata[end] = temp;
 	return i;
 }
+
 void Accounts::quicksortPayments(payData* paydata, int start, int end)
 {
 	if (start >= end)
-	{
 		return;
-	}
+
 	int pivot = partition(paydata, start, end);
 	quicksortPayments(paydata, start, pivot - 1);
 	quicksortPayments(paydata, pivot + 1, end);

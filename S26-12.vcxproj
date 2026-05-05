@@ -153,7 +153,6 @@
     <ClCompile Include="Package.cpp" />
     <ClCompile Include="Planned_package.cpp" />
     <ClCompile Include="Review.cpp" />
-    <ClCompile Include="S26-12_driver.cpp" />
     <ClCompile Include="UserManagement.cpp" />
   </ItemGroup>
   <ItemGroup>

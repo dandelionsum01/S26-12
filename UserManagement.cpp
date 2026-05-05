@@ -1,38 +1,41 @@
 #include "header.h"
 using namespace std;
-void UserManagement::setUsername(string username)
+
+void UserManagement::setUsername(const string& username)
 {
-	this->username = username;
+    this->username = username;
 }
-void  UserManagement::setPassword(string password)
+
+void UserManagement::setPassword(const string& password)
 {
-	this->password = password;
+    this->password = password;
 }
-string UserManagement::getUsername()
+
+string UserManagement::getUsername() const
 {
-	return username;
+    return username;
 }
-string UserManagement::getPassword()
+
+string UserManagement::getPassword() const
 {
-	return password;
+    return password;
 }
+
 void UserManagement::countdownTimer(int& set)
 {
-	int time = 30 * pow(2, set);
-	system("cls");
-	while (time >= 0)
-	{
-		if (time < 10)
-		{
-			cout << "Try again after 0" << time << " seconds" << "\r";
-		}
-		else
-		{
-			cout << "Try again after " << time << " seconds" << "\r";
-		}
-		this_thread::sleep_for(chrono::seconds(1));
-		time--;
-	}
-	system("cls");
-	set++;
+    int t = 30 * static_cast<int>(pow(2, set));
+    system("cls");
+    while (t >= 0)
+    {
+        if (t < 10)
+            cout << "Try again after 0" << t << " seconds" << "\r";
+        else
+            cout << "Try again after " << t << " seconds" << "\r";
+
+        cout.flush();
+        this_thread::sleep_for(chrono::seconds(1));
+        t--;
+    }
+    system("cls");
+    set++;
 }
