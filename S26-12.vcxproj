@@ -135,9 +135,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="S26-12_header.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Accounts.cpp" />
     <ClCompile Include="Admin.cpp" />
     <ClCompile Include="Customer.cpp" />

@@ -1,4 +1,4 @@
-#include "S26-12_header.h"
+#include "header.h"
 using namespace std;
 void Customer::signin()
 {
@@ -6,7 +6,7 @@ void Customer::signin()
 	string reCaptchaImg[5][2] = { {"reCaptcha1.png", "A7kP9"}, {"reCaptcha2.png", "ALliteRaTIoN"}, {"reCaptcha3.png", "hou-se"}, {"reCaptcha4.png", "b4ckgr0uzd"}, {"reCaptcha5.png", "JkL5Np"} };
 	srand(time(nullptr));
 	string username, password;
-	cout << "Enter username of Customer: \n";
+	cout << "Enter username of Customer\n";
 	cin >> username;
 	setUsername(username);
 	if (!findUsername())
