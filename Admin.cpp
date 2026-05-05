@@ -104,10 +104,10 @@ void Admin::sortedPayments(Accounts* accounts)
 	int numPayments = 0;
 	payData* paydata = accounts->readPayments(numPayments);
 	accounts->quicksortPayments(paydata, 0, numPayments - 1);
-	cout << "Payments from largest to smallest: " << "\n\n";
+	cout << "Payments ordered from smallest to largest: " << "\n\n";
 	for (int i = 0; i < numPayments; i++)
 	{
-		cout << "Payment " << i + 1 << "| " << right << setw(15) << paydata[i].username << " | " << right << setw(15) << paydata[i].payment << "\n";
+		cout << "Payment " << i + 1 << "|--" << right << setw(15) << paydata[i].username << "|--" << right << setw(15) << paydata[i].payment << "\n";
 	}
 	delete[] paydata;
 }

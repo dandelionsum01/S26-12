@@ -20,7 +20,6 @@ void UserManagement::countdownTimer(int& set)
 {
 	int time = 30 * pow(2, set);
 	system("cls");
-	cout << "\n";
 	while (time >= 0)
 	{
 		if (time < 10)

@@ -4,6 +4,7 @@ void Customer::signin()
 {
 	int tries = 0, set = 0;
 	string reCaptchaImg[5][2] = { {"reCaptcha1.png", "A7kP9"}, {"reCaptcha2.png", "ALliteRaTIoN"}, {"reCaptcha3.png", "hou-se"}, {"reCaptcha4.png", "b4ckgr0uzd"}, {"reCaptcha5.png", "JkL5Np"} };
+	srand(time(nullptr));
 	string username, password;
 	cout << "Enter username of Customer: \n";
 	cin >> username;
@@ -14,7 +15,6 @@ void Customer::signin()
 		return;
 	}
 	system("cls");
-	srand(time(nullptr));
 	int num = rand() % 5;
 
 	// reCaptcha check window 
@@ -329,7 +329,7 @@ bool Customer::checkStrength()
 	}
 	if (password.length() < 8 || numSpecial < 1 || numInteger < 2 || numLower < 1 || numUpper < 1 || numGeneric > 0)
 	{
-		cout << "\nPassword must contain ";
+		cout << "\nPassword must contain: ";
 		if (password.length() < 8)
 		{
 			cout << "at least 8 characters, ";
