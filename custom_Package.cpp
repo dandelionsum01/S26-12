@@ -95,6 +95,10 @@ void CustomPackage::setHotelCategory(HotelCategory hc)
     this->hotelCategory = hc;
 }
 
+HotelCategory CustomPackage::getHotelCategory()
+{
+    return hotelCategory;
+}
 int CustomPackage::calculateBill()
 {
     int hotelCostPerNight = getHotelPrice();
