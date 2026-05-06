@@ -1,6 +1,123 @@
 ﻿#define _USE_MATH_DEFINES
 #include "header.h"
+#include <cctype>
 using namespace std;
+
+// ----------------------------------------------------------------
+//  Local helpers (city-name normalization & URL encoding).
+//  Anonymous namespace -> not visible to other .cpp files.
+// ----------------------------------------------------------------
+namespace
+{
+    // Case-insensitive, whitespace-tolerant key for comparison.
+    string normalizeCityName(string s)
+    {
+        // trim trailing CR / LF / spaces / tabs
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n' ||
+            s.back() == ' ' || s.back() == '\t'))
+            s.pop_back();
+        // trim leading spaces / tabs
+        while (!s.empty() && (s.front() == ' ' || s.front() == '\t'))
+            s.erase(0, 1);
+        // lowercase
+        for (size_t i = 0; i < s.size(); ++i)
+            s[i] = static_cast<char>(
+                tolower(static_cast<unsigned char>(s[i])));
+        return s;
+    }
+
+    // Replace spaces with %20 so the city name is safe inside a URL
+    // (e.g. "Dera Ismail Khan" -> "Dera%20Ismail%20Khan").
+    string urlEncodeSpaces(const string& s)
+    {
+        string out;
+        for (char c : s)
+        {
+            if (c == ' ') out += "%20";
+            else          out += c;
+        }
+        return out;
+    }
+}
+
+// ================================================================
+//  Online lookup: ask OpenStreetMap (Nominatim) for the
+//  coordinates of a city in Pakistan. Returns true on success.
+//
+//  Requires `curl` on PATH, which is present by default on:
+//      - Windows 10 (1803+) / Windows 11
+//      - Linux / macOS
+//
+//  The API is free, no key required, but politely asks every
+//  client to send a User-Agent.
+// ================================================================
+bool fetchCityCoordinates(const string& cityName,
+    double& outLat, double& outLon)
+{
+    const string tempFile = "city_lookup.json";
+
+    string cmd =
+        "curl -s -A \"TravelSystemEdu/1.0\" "
+        "\"https://nominatim.openstreetmap.org/search?q=" +
+        urlEncodeSpaces(cityName) +
+        ",Pakistan&format=json&limit=1\" -o " + tempFile;
+
+    int rc = system(cmd.c_str());
+    if (rc != 0)
+    {
+        cout << "Could not reach the geocoding service "
+            "(no internet, or curl is not installed).\n";
+        return false;
+    }
+
+    ifstream f(tempFile);
+    if (!f.is_open())
+    {
+        cout << "Could not read geocoding response.\n";
+        return false;
+    }
+
+    stringstream buf;
+    buf << f.rdbuf();
+    string body = buf.str();
+    f.close();
+    remove(tempFile.c_str());
+
+    // Empty array "[]" means Nominatim found nothing for this query.
+    if (body.find("\"lat\"") == string::npos)
+    {
+        cout << "City not found by online geocoder.\n";
+        return false;
+    }
+
+    size_t latPos = body.find("\"lat\":\"");
+    size_t lonPos = body.find("\"lon\":\"");
+    if (latPos == string::npos || lonPos == string::npos)
+        return false;
+
+    latPos += 7; // length of '"lat":"'
+    lonPos += 7;
+
+    size_t latEnd = body.find('"', latPos);
+    size_t lonEnd = body.find('"', lonPos);
+    if (latEnd == string::npos || lonEnd == string::npos)
+        return false;
+
+    try
+    {
+        outLat = stod(body.substr(latPos, latEnd - latPos));
+        outLon = stod(body.substr(lonPos, lonEnd - lonPos));
+    }
+    catch (...)
+    {
+        return false;
+    }
+    return true;
+}
+
+// ================================================================
+//  Package implementation
+// ================================================================
 
 Package::Package()
 {
@@ -59,12 +176,19 @@ void Package::setNewcity(const string& cityName, double lat, double lon)
                 getline(checkFile, line); // header
                 while (getline(checkFile, line))
                 {
+                    if (line.empty()) continue;
                     stringstream ss(line);
                     string name;
                     getline(ss, name, ',');
-                    if (name == cityName)
+
+                    // Case-insensitive, whitespace-tolerant comparison.
+                    // Catches "Karachi", "karachi", "  KARACHI " etc.
+                    if (normalizeCityName(name) ==
+                        normalizeCityName(cityName))
                     {
-                        cout << cityName << " already exists!\n";
+                        cout << "'" << cityName
+                            << "' already exists in cities.csv "
+                            "(stored as '" << name << "').\n";
                         return;
                     }
                 }

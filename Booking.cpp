@@ -485,7 +485,14 @@ void Booking::makeBooking(const string& customerUsername)
         << todayString() << "\n";
     out.close();
 
-    updateCapacity(chosen.id);
+    // NOTE: updateCapacity() intentionally NOT called.
+    // countBookings(bookings.csv) is the single source of truth
+    // for how many seats have been taken. Calling updateCapacity
+    // here would also decrement the Capacity field in packages.csv,
+    // and the viewer (which subtracts countBookings from capacity)
+    // would then double-count -- making seatsLeft drop by 2 per
+    // booking instead of 1. The function is kept in the class for
+    // backward compatibility but should be considered deprecated.
 
     setPackageID(chosen.id);
     setCustomerUsername(customerUsername);

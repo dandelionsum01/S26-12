@@ -355,7 +355,10 @@ bool CustomPackage::approvePackage()
             }
             else
             {
-                // No change -- keep the original PENDING line.
+                // Anything other than y/n: keep the original PENDING line
+                // and let the admin know nothing was changed.
+                cout << "Invalid choice -- package " << targetID
+                    << " left as PENDING.\n";
                 fileOut << line << "\n";
                 continue;
             }

@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <vector>
+#include <limits>
 #include <SFML/Graphics.hpp>
 
 // Note: SFML is only required if you use the GUI reCaptcha. If SFML is not
@@ -330,3 +331,9 @@ public:
 
 // Free helper used by other modules to push messages to all subscribers.
 void broadcastNotification(const string& message);
+
+// Online geocoding helper (implemented in Package.cpp). Uses curl + the
+// OpenStreetMap Nominatim API to look up coordinates for a city name.
+// Returns true on success and writes the result to outLat / outLon.
+bool fetchCityCoordinates(const string& cityName,
+    double& outLat, double& outLon);
