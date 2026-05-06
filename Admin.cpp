@@ -11,18 +11,17 @@ void Admin::signin()
     int tries = 0, set = 0;
     string username;
     string password;
-
     cout << "Enter username of admin: \n";
     cin >> username;
     setUsername(username);
     if (!findUsername())
+    {
         return;
-
+    }
     system("cls");
     cout << "Enter password of admin: \n";
     cin >> password;
     setPassword(password);
-
     bool valid = checkPassword();
     while (!valid)
     {
@@ -40,7 +39,6 @@ void Admin::signin()
     cout << "\nAdmin login was successful\n";
 }
 
-// Original bug: only the first data row was checked. We now scan every row.
 bool Admin::findUsername()
 {
     ifstream fileIn("AdminInfo.csv");
@@ -49,16 +47,15 @@ bool Admin::findUsername()
         cout << "\nError: file failed to open\n";
         return false;
     }
-
     string line;
-    getline(fileIn, line); // header
-
+    getline(fileIn, line);
     while (getline(fileIn, line))
     {
         string username;
         for (size_t i = 0; i < line.length() && line[i] != ','; ++i)
+        {
             username += line[i];
-
+        }
         if (username == getUsername())
         {
             fileIn.close();
@@ -70,8 +67,6 @@ bool Admin::findUsername()
     return false;
 }
 
-// Original bug: only checked password of first row even if a different user
-// was supplied. Fixed to check the row whose username matches.
 bool Admin::checkPassword()
 {
     ifstream fileIn("AdminInfo.csv");
@@ -80,23 +75,21 @@ bool Admin::checkPassword()
         cout << "\nError: file failed to open\n";
         return false;
     }
-
     string line;
-    getline(fileIn, line); // header
-
+    getline(fileIn, line);
     while (getline(fileIn, line))
     {
         size_t comma = line.find(',');
-        if (comma == string::npos) continue;
-
+        if (comma == string::npos)
+        {
+            continue;
+        }
         string username = line.substr(0, comma);
         string password = line.substr(comma + 1);
-
-        // strip CR/LF
-        while (!password.empty() &&
-            (password.back() == '\r' || password.back() == '\n'))
+        while (!password.empty() && (password.back() == '\r' || password.back() == '\n'))
+        {
             password.pop_back();
-
+        }
         if (username == getUsername() && password == getPassword())
         {
             fileIn.close();
@@ -124,14 +117,11 @@ void Admin::sortedPayments(Accounts* accounts)
         delete[] paydata;
         return;
     }
-
     accounts->quicksortPayments(paydata, 0, numPayments - 1);
     cout << "Payments ordered from smallest to largest:\n\n";
     for (int i = 0; i < numPayments; ++i)
     {
-        cout << "Payment " << i + 1
-            << "|--" << right << setw(15) << paydata[i].username
-            << "|--" << right << setw(15) << paydata[i].payment << "\n";
+        cout << "Payment " << i + 1 << "|--" << right << setw(15) << paydata[i].username << "|--" << right << setw(15) << paydata[i].payment << "\n";
     }
     delete[] paydata;
 }
