@@ -423,3 +423,8 @@ __pycache__/
 *.tss
 
 # Telerik's JustMock configuration
+
+# Allow SFML binaries
+!lib/*.lib
+!lib/*.dll
+!bin/*.dll
