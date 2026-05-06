@@ -3,16 +3,11 @@
 #include <cctype>
 using namespace std;
 
-// ----------------------------------------------------------------
-//  Local helpers (city-name normalization & URL encoding).
-//  Anonymous namespace -> not visible to other .cpp files.
-// ----------------------------------------------------------------
 namespace
 {
-    // Case-insensitive, whitespace-tolerant key for comparison.
+    // Case-insensi
     string normalizeCityName(string s)
     {
-        // trim trailing CR / LF / spaces / tabs
         while (!s.empty() && (s.back() == '\r' || s.back() == '\n' ||
             s.back() == ' ' || s.back() == '\t'))
             s.pop_back();
@@ -26,8 +21,6 @@ namespace
         return s;
     }
 
-    // Replace spaces with %20 so the city name is safe inside a URL
-    // (e.g. "Dera Ismail Khan" -> "Dera%20Ismail%20Khan").
     string urlEncodeSpaces(const string& s)
     {
         string out;
@@ -40,17 +33,6 @@ namespace
     }
 }
 
-// ================================================================
-//  Online lookup: ask OpenStreetMap (Nominatim) for the
-//  coordinates of a city in Pakistan. Returns true on success.
-//
-//  Requires `curl` on PATH, which is present by default on:
-//      - Windows 10 (1803+) / Windows 11
-//      - Linux / macOS
-//
-//  The API is free, no key required, but politely asks every
-//  client to send a User-Agent.
-// ================================================================
 bool fetchCityCoordinates(const string& cityName,
     double& outLat, double& outLon)
 {
@@ -115,9 +97,6 @@ bool fetchCityCoordinates(const string& cityName,
     return true;
 }
 
-// ================================================================
-//  Package implementation
-// ================================================================
 
 Package::Package()
 {
@@ -127,29 +106,29 @@ Package::Package()
 
 void Package::setPackageID(const string& packageID) { this->packageID = packageID; }
 void Package::setStart(const string& start) { this->start = start; }
-void Package::setDestination(const string& destination) { this->destination = destination; }
+    void Package::setDestination(const string& destination) { this->destination = destination; }
 void Package::setPackageFee(int packageFee) { this->packageFee = packageFee; }
-void Package::setHotel(const string& hotel) { this->hotel = hotel; }
+    void Package::setHotel(const string& hotel) { this->hotel = hotel; }
 void Package::setCapacity(int capacity) { this->capacity = capacity; }
-void Package::setDepartureDate(const string& departureDate) { this->departureDate = departureDate; }
+    void Package::setDepartureDate(const string& departureDate) { this->departureDate = departureDate; }
 
 string Package::getPackageID()      const { return packageID; }
-string Package::getStart()          const { return start; }
+    string Package::getStart()          const { return start; }
 string Package::getDestination()    const { return destination; }
-int    Package::getPackageFee()     const { return packageFee; }
+    int    Package::getPackageFee()     const { return packageFee; }
 string Package::getHotel()          const { return hotel; }
-int    Package::getCapacity()       const { return capacity; }
+    int    Package::getCapacity()       const { return capacity; }
 string Package::getDepartureDate()  const { return departureDate; }
 
 double Package::calculateDistance(double lat1, double lon1,
     double lat2, double lon2)
 {
     lat1 *= M_PI / 180.0;
-    lat2 *= M_PI / 180.0;
+       lat2 *= M_PI / 180.0;
     lon1 *= M_PI / 180.0;
-    lon2 *= M_PI / 180.0;
+     lon2 *= M_PI / 180.0;
     const double R = 6371.0;
-    double dLat = (lat2 - lat1);
+     double dLat = (lat2 - lat1);
     double dLon = (lon2 - lon1);
     double a = pow(sin(dLat / 2.0), 2) +
         cos(lat1) * cos(lat2) * pow(sin(dLon / 2.0), 2);
@@ -162,7 +141,7 @@ void Package::setNewcity(const string& cityName, double lat, double lon)
     bool isEmpty = false;
 
     {
-        ifstream checkFile("cities.csv");
+           ifstream checkFile("cities.csv");
         if (checkFile.is_open())
         {
             checkFile.seekg(0, ios::end);
@@ -171,8 +150,8 @@ void Package::setNewcity(const string& cityName, double lat, double lon)
             if (!isEmpty)
             {
                 checkFile.clear();
-                checkFile.seekg(0, ios::beg);
-                string line;
+                  checkFile.seekg(0, ios::beg);
+                  string line;
                 getline(checkFile, line); // header
                 while (getline(checkFile, line))
                 {
@@ -181,9 +160,7 @@ void Package::setNewcity(const string& cityName, double lat, double lon)
                     string name;
                     getline(ss, name, ',');
 
-                    // Case-insensitive, whitespace-tolerant comparison.
-                    // Catches "Karachi", "karachi", "  KARACHI " etc.
-                    if (normalizeCityName(name) ==
+                       if (normalizeCityName(name) ==
                         normalizeCityName(cityName))
                     {
                         cout << "'" << cityName
@@ -258,7 +235,6 @@ City* Package::loadCities(int& count)
         }
         catch (const exception&)
         {
-            // Skip malformed row
         }
     }
     cityFile2.close();
@@ -330,7 +306,5 @@ void Package::displayCities()
 
 int Package::getDynamicPrice()
 {
-    // Dynamic pricing logic is centralised in Booking::makeBooking
-    // (which has live capacity info from bookings.csv).
     return getPackageFee();
 }
