@@ -425,6 +425,6 @@ __pycache__/
 # Telerik's JustMock configuration
 
 # Allow SFML binaries
-!lib/*.lib
-!lib/*.dll
-!bin/*.dll
+!SFML-2.6.2/lib/*.lib
+!SFML-2.6.2/lib/*.dll
+!SFML-2.6.2/bin/*.dll
