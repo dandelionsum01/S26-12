@@ -9,21 +9,28 @@ PlannedPackage::PlannedPackage()
 }
 
     void PlannedPackage::setExpiryDate(const string& expiryDate) { this->expiryDate = expiryDate; }
-    void PlannedPackage::setBasePrice(int price) { this->basePrice = price; }
-void PlannedPackage::setCategory(Category category) { this->category = category; }
+        void PlannedPackage::setBasePrice(int price) { this->basePrice = price; }
+void PlannedPackage::setCategory(Category category) 
+{
+    this->category = category; 
+}
 
 string   PlannedPackage::getExpiryDate() const { return expiryDate; }
 int      PlannedPackage::getBasePrice()  const { return basePrice; }
-    Category PlannedPackage::getCategory()   const { return category; }
+      Category PlannedPackage::getCategory()   const { return category; }
 
     Category PlannedPackage::intToCategory(int choice)
 {
     switch (choice)
     {
-    case 1: return Category::NORTHERN_AREAS;
-      case 2: return Category::SOUTH;
-     case 3: return Category::CENTRAL;
-    case 4: return Category::COASTAL;
+    case 1:
+        return Category::NORTHERN_AREAS;
+      case 2:
+          return Category::SOUTH;
+     case 3:
+         return Category::CENTRAL;
+    case 4:
+        return Category::COASTAL;
       default: return Category::NORTHERN_AREAS;
     }
 }

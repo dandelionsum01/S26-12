@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+<VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgTriplet>x64-windows</VcpkgTriplet>
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{3B2F067E-5CC6-4E41-82AF-601571A413AB}</ProjectGuid>
@@ -145,11 +147,11 @@
   <ItemGroup>
     <ClCompile Include="Accounts.cpp" />
     <ClCompile Include="Admin.cpp" />
-    <ClCompile Include="aur_main_.cpp" />
+    <ClCompile Include="geocoder.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Booking.cpp" />
     <ClCompile Include="Customer.cpp" />
     <ClCompile Include="custom_Package.cpp" />
-    <ClCompile Include="Geocoder.cpp" />
     <ClCompile Include="Notification.cpp" />
     <ClCompile Include="Package.cpp" />
     <ClCompile Include="Planned_package.cpp" />
@@ -158,6 +160,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="vcpkg.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

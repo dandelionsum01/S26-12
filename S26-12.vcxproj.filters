@@ -27,7 +27,7 @@
     <ClCompile Include="Accounts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="aur_main_.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Booking.cpp">
@@ -48,7 +48,7 @@
     <ClCompile Include="Review.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Geocoder.cpp">
+    <ClCompile Include="geocoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,5 +56,8 @@
     <ClInclude Include="header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="vcpkg.json" />
   </ItemGroup>
 </Project>

@@ -1,19 +1,22 @@
-
+// ============================================================
+//  main.cpp  --  Travel Management System driver
+// ============================================================
 #include "header.h"
 using namespace std;
 
+// Read an integer from the user, restricted to [minValue, maxValue].
 static int readIntChoice(int minValue, int maxValue)
 {
     int choice;
     while (true)
     {
-           cout << "Enter choice (" << minValue << "-" << maxValue << "): ";
+        cout << "Enter choice (" << minValue << "-" << maxValue << "): ";
         cin >> choice;
-           if (cin.fail())
+        if (cin.fail())
         {
             cin.clear();
-               cin.ignore(numeric_limits<streamsize>::max(), '\n');
-               cout << "Invalid input. Try again.\n";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Try again.\n";
             continue;
         }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -31,9 +34,9 @@ static string getUsernamePrompt(const string& currentUser)
     if (!currentUser.empty())
     {
         char useCurrent;
-         cout << "Use current user '" << currentUser << "'? (y/n): ";
+        cout << "Use current user '" << currentUser << "'? (y/n): ";
         cin >> useCurrent;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         if (useCurrent == 'y' || useCurrent == 'Y')
             return currentUser;
     }
@@ -46,7 +49,7 @@ static string getUsernamePrompt(const string& currentUser)
 
 static void adminMenu()
 {
-     Admin          admin;
+    Admin          admin;
     Accounts       accounts;
     PlannedPackage planned;
     CustomPackage  custom;
@@ -55,17 +58,17 @@ static void adminMenu()
 
     while (true)
     {
-           cout << "\n=== Admin Menu ===\n";
+        cout << "\n=== Admin Menu ===\n";
         cout << "1. Sign in\n";
         cout << "2. Add city\n";
         cout << "3. Add planned package\n";
-           cout << "4. Delete planned package\n";
+        cout << "4. Delete planned package\n";
         cout << "5. Display planned packages\n";
-           cout << "6. Find package by destination\n";
+        cout << "6. Find package by destination\n";
         cout << "7. Remove expired packages\n";
         cout << "8. View pending custom requests\n";
         cout << "9. Approve or reject custom request\n";
-           cout << "10. View revenue\n";
+        cout << "10. View revenue\n";
         cout << "11. Sort payments\n";
         cout << "0. Back\n";
 
@@ -92,21 +95,57 @@ static void adminMenu()
             case 2:
             {
                 string name;
-                double lat, lon;
                 cout << "City name: ";
                 getline(cin, name);
-                lat = readValue<double>("Latitude: ");
-                lon = readValue<double>("Longitude: ");
-                planned.setNewcity(name, lat, lon);
+
+                // Normalize so "lahore" / "LAHORE" / "  Lahore  "
+                // all behave the same.
+                string nice = normalizeCityName(name);
+                if (nice.empty())
+                {
+                    cout << "City name cannot be empty.\n";
+                    break;
+                }
+
+                double lat = 0.0, lon = 0.0;
+
+                // 1) Already in cities.csv? (case-insensitive)
+                if (findCityInCSV(nice, lat, lon))
+                {
+                    cout << nice << " is already in cities.csv "
+                        "(lat=" << lat << ", lon=" << lon << ").\n";
+                    break;
+                }
+
+                // 2) Try the online geocoder.
+                cout << "Looking up '" << nice << "' online...\n";
+                bool ok = geocode(nice, lat, lon);
+
+                if (ok)
+                {
+                    cout << "Found: lat=" << lat
+                        << ", lon=" << lon << "\n";
+                }
+                else
+                {
+                    // 3) Fallback: ask the user.
+                    cout << "Could not auto-fetch coordinates "
+                        "(no internet, or city not found).\n";
+                    cout << "Please enter them manually.\n";
+                    lat = readValue<double>("Latitude: ");
+                    lon = readValue<double>("Longitude: ");
+                }
+
+                planned.setNewcity(nice, lat, lon);
                 break;
             }
             case 3:  planned.addPackage(); break;
-             case 4:  planned.deletePackage(); break;
+            case 4:  planned.deletePackage(); break;
             case 5:  planned.displayPackage(); break;
             case 6:  planned.findPackage(); break;
             case 7:  planned.removeExpiredPackages(); break;
             case 8:  custom.viewPending(); break;
-             case 9:  custom.approvePackage(); break;
+            case 9:  custom.approvePackage(); break;
             case 10: admin.findRevenue(&accounts); break;
             case 11: admin.sortedPayments(&accounts); break;
             default: break;
@@ -124,7 +163,7 @@ static void customerMenu()
     Customer          customer;
     PlannedPackage    planned;
     CustomPackage     custom;
-            Booking           booking;
+    Booking           booking;
     CustomerReview    review;
     NotificationPanel notifications;
 
@@ -134,12 +173,12 @@ static void customerMenu()
     {
         cout << "\n=== Customer Menu ===\n";
         cout << "1. Sign up\n";
-              cout << "2. Sign in\n";
+        cout << "2. Sign in\n";
         cout << "3. Display cities\n";
         cout << "4. Display planned packages\n";
         cout << "5. Find package by destination\n";
         cout << "6. Make booking\n";
-            cout << "7. Request custom package\n";
+        cout << "7. Request custom package\n";
         cout << "8. Add review\n";
         cout << "9. Read reviews for package\n";
         cout << "10. Subscribe to notifications\n";
@@ -158,9 +197,9 @@ static void customerMenu()
                 break;
             case 2:
                 customer.signin();
-                  currentUser = customer.getUsername();
+                currentUser = customer.getUsername();
                 break;
-                case 3:
+            case 3:
                 planned.displayCities();
                 break;
             case 4:
@@ -171,7 +210,7 @@ static void customerMenu()
                 break;
             case 6:
             {
-                    string user = getUsernamePrompt(currentUser);
+                string user = getUsernamePrompt(currentUser);
                 booking.makeBooking(user);
                 break;
             }
@@ -183,10 +222,10 @@ static void customerMenu()
             }
             case 8:
             {
-                      string user = getUsernamePrompt(currentUser);
+                string user = getUsernamePrompt(currentUser);
                 string pkg;
                 cout << "Enter Package ID to review: ";
-                 getline(cin, pkg);
+                getline(cin, pkg);
                 review.addReview(user, pkg);
                 break;
             }
@@ -206,7 +245,7 @@ static void customerMenu()
             }
             case 11:
             {
-                      string user = getUsernamePrompt(currentUser);
+                string user = getUsernamePrompt(currentUser);
                 notifications.displayNotification(user);
                 break;
             }
@@ -222,20 +261,20 @@ static void customerMenu()
 
 int main()
 {
-     cout << "Travel Management System\n";
+    cout << "Travel Management System\n";
 
     try
     {
         while (true)
         {
             cout << "\n=== Main Menu ===\n";
-               cout << "1. Admin\n";
-               cout << "2. Customer\n";
+            cout << "1. Admin\n";
+            cout << "2. Customer\n";
             cout << "0. Exit\n";
 
-                int choice = readIntChoice(0, 2);
+            int choice = readIntChoice(0, 2);
             if (choice == 0) break;
-                if (choice == 1) adminMenu();
+            if (choice == 1) adminMenu();
             else if (choice == 2) customerMenu();
         }
     }
@@ -245,6 +284,6 @@ int main()
         return 1;
     }
 
-       cout << "Goodbye.\n";
+    cout << "Goodbye.\n";
     return 0;
 }
