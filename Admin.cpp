@@ -3,13 +3,9 @@ using namespace std;
 
 Admin::Admin()
 {
-    accounts = new Accounts();
-}
-Admin::~Admin()
-{
-    delete accounts;            
     accounts = nullptr;
 }
+
 void Admin::signin()
 {
     int tries = 0, set = 0;
@@ -103,16 +99,18 @@ bool Admin::checkPassword()
     fileIn.close();
     return false;
 }
-void Admin::findRevenue()
+
+void Admin::findRevenue(Accounts *accounts)
 {
-    accounts->calculateRevenue();
-    accounts->displayRevenue();
+    this->accounts = accounts;
+    this->accounts->calculateRevenue();
+    this->accounts->displayRevenue();
 }
 
-void Admin::sortedPayments()
+void Admin::sortedPayments(Accounts *accounts)
 {
     int numPayments = 0;
-    payData* paydata = accounts->readPayments(numPayments);
+    payData *paydata = accounts->readPayments(numPayments);
     if (paydata == nullptr || numPayments == 0)
     {
         cout << "No payments to sort.\n";
@@ -123,9 +121,7 @@ void Admin::sortedPayments()
     cout << "Payments ordered from smallest to largest:\n\n";
     for (int i = 0; i < numPayments; ++i)
     {
-        cout << "Payment " << i + 1 << "|--"
-            << right << setw(15) << paydata[i].username << "|--"
-            << right << setw(15) << paydata[i].payment << "\n";
+        cout << "Payment " << i + 1 << "|--" << right << setw(15) << paydata[i].username << "|--" << right << setw(15) << paydata[i].payment << "\n";
     }
     delete[] paydata;
 }

@@ -14,18 +14,18 @@ namespace
     string todayString()
     {
         time_t t = time(0);
-        tm* now = localtime(&t);
-        char   buf[20];
+        tm *now = localtime(&t);
+        char buf[20];
         strftime(buf, sizeof(buf), "%Y-%m-%d", now);
         return string(buf);
     }
     struct PkgRow
     {
         string id, from, to, hotel, depDate, expiry, category;
-        int    price = 0;
-        int    capacity = 0;
+        int price = 0;
+        int capacity = 0;
     };
-    PkgRow* loadPackages(int& count)
+    PkgRow *loadPackages(int &count)
     {
         count = 0;
         ifstream f("packages.csv");
@@ -47,7 +47,7 @@ namespace
         {
             return nullptr;
         }
-        PkgRow* rows = new PkgRow[count];
+        PkgRow *rows = new PkgRow[count];
         ifstream f2("packages.csv");
         getline(f2, line);
         int i = 0;
@@ -84,7 +84,7 @@ namespace
         count = i;
         return rows;
     }
-    int countBookings(const string& packageID)
+    int countBookings(const string &packageID)
     {
         int booked = 0;
         ifstream f("bookings.csv");
@@ -109,7 +109,7 @@ namespace
         f.close();
         return booked;
     }
-    string generateBookingID(const string& packageID)
+    string generateBookingID(const string &packageID)
     {
         int n = countBookings(packageID) + 1;
         return "BK-" + packageID + "-" + to_string(n);
@@ -123,32 +123,32 @@ Booking::Booking()
     customerUsername = "";
 }
 
-void   Booking::setPayment(int p) 
-{ 
-    payment = p; 
-}
-void   Booking::setPackageID(const string& id) 
-{ 
-    packageID = id; 
-}
-void   Booking::setCustomerUsername(const string& u) 
-{ 
-    customerUsername = u; 
-}
-int    Booking::getPayment()         const 
-{ 
-    return payment; 
-}
-string Booking::getPackageID()       const 
+void Booking::setPayment(int p)
 {
-    return packageID; 
+    payment = p;
 }
-string Booking::getCustomerUsername()const 
+void Booking::setPackageID(const string &id)
 {
-    return customerUsername; 
+    packageID = id;
+}
+void Booking::setCustomerUsername(const string &u)
+{
+    customerUsername = u;
+}
+int Booking::getPayment() const
+{
+    return payment;
+}
+string Booking::getPackageID() const
+{
+    return packageID;
+}
+string Booking::getCustomerUsername() const
+{
+    return customerUsername;
 }
 
-bool Booking::checkCreditNum(const string& cardNum)
+bool Booking::checkCreditNum(const string &cardNum)
 {
     string digits;
     for (char c : cardNum)
@@ -162,7 +162,7 @@ bool Booking::checkCreditNum(const string& cardNum)
     {
         return false;
     }
-    int  sum = 0;
+    int sum = 0;
     bool alt = false;
     for (int i = static_cast<int>(digits.length()) - 1; i >= 0; --i)
     {
@@ -170,7 +170,8 @@ bool Booking::checkCreditNum(const string& cardNum)
         if (alt)
         {
             d *= 2;
-            if (d > 9) d -= 9;
+            if (d > 9)
+                d -= 9;
         }
         sum += d;
         alt = !alt;
@@ -178,7 +179,7 @@ bool Booking::checkCreditNum(const string& cardNum)
     return (sum % 10 == 0);
 }
 
-void Booking::updateCapacity(const string& pkgID)
+void Booking::updateCapacity(const string &pkgID)
 {
     ifstream fileIn("packages.csv");
     if (!fileIn.is_open())
@@ -194,7 +195,7 @@ void Booking::updateCapacity(const string& pkgID)
         return;
     }
     string line;
-    bool   updated = false;
+    bool updated = false;
     getline(fileIn, line);
     fileOut << line << "\n";
     while (getline(fileIn, line))
@@ -214,13 +215,13 @@ void Booking::updateCapacity(const string& pkgID)
         if (trimWS(id) == pkgID)
         {
             int remaining = 0;
-            try 
+            try
             {
-                remaining = stoi(cap) - 1; 
+                remaining = stoi(cap) - 1;
             }
-            catch (...) 
-            { 
-                remaining = 0; 
+            catch (...)
+            {
+                remaining = 0;
             }
             if (remaining < 0)
             {
@@ -248,7 +249,7 @@ void Booking::updateCapacity(const string& pkgID)
     }
 }
 
-int Booking::returnPayment(const string& customerUsername)
+int Booking::returnPayment(const string &customerUsername)
 {
     ifstream f("bookings.csv");
     if (!f.is_open())
@@ -272,20 +273,21 @@ int Booking::returnPayment(const string& customerUsername)
         {
             try
             {
-                total += stoi(pay); 
+                total += stoi(pay);
             }
-            catch (...) 
-            {}
+            catch (...)
+            {
+            }
         }
     }
     f.close();
     return total;
 }
 
-void Booking::makeBooking(const string& customerUsername)
+void Booking::makeBooking(const string &customerUsername)
 {
-    int     pkgCount = 0;
-    PkgRow* packages = loadPackages(pkgCount);
+    int pkgCount = 0;
+    PkgRow *packages = loadPackages(pkgCount);
     if (packages == nullptr || pkgCount == 0)
     {
         cout << "No packages available at the moment.\n";
@@ -321,7 +323,7 @@ void Booking::makeBooking(const string& customerUsername)
     cout << "=========================================\n";
     string chosenID;
     PkgRow chosen;
-    bool   found = false;
+    bool found = false;
     while (!found)
     {
         cout << "Enter Package ID to book (or 0 to cancel): ";
@@ -375,7 +377,7 @@ void Booking::makeBooking(const string& customerUsername)
         }
     }
     double fillRate = (chosen.capacity > 0) ? static_cast<double>(booked) / chosen.capacity : 0.0;
-    int    finalPrice = chosen.price;
+    int finalPrice = chosen.price;
     string priceNote;
     if (fillRate > 0.8)
     {
@@ -398,22 +400,22 @@ void Booking::makeBooking(const string& customerUsername)
     cout << "-----------------------\n";
     char confirm;
     cout << "Confirm booking? (y/n): ";
-    do {
+    do
+    {
         cin >> confirm;
         if (confirm != 'y' && confirm != 'Y' && confirm != 'n' && confirm != 'N')
         {
             cout << "Please enter y or n: ";
         }
-    } 
-    while (confirm != 'y' && confirm != 'Y' && confirm != 'n' && confirm != 'N');
+    } while (confirm != 'y' && confirm != 'Y' && confirm != 'n' && confirm != 'N');
     if (confirm == 'n' || confirm == 'N')
     {
         cout << "Booking cancelled.\n";
         return;
     }
     string cardNum;
-    bool   validCard = false;
-    int    attempts = 0;
+    bool validCard = false;
+    int attempts = 0;
     while (!validCard && attempts < 3)
     {
         cout << "Enter Credit Card Number: ";
@@ -451,7 +453,7 @@ void Booking::makeBooking(const string& customerUsername)
     {
         out << "BookingID,CustomerUsername,PackageID,DepartureDate,Payment,BookingDate\n";
     }
-    out << bookingID << "," << customerUsername << "," << chosen.id << "," << chosen.depDate << ","  << finalPrice << "," << todayString() << "\n";
+    out << bookingID << "," << customerUsername << "," << chosen.id << "," << chosen.depDate << "," << finalPrice << "," << todayString() << "\n";
     out.close();
     setPackageID(chosen.id);
     setCustomerUsername(customerUsername);

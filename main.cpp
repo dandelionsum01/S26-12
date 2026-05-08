@@ -1,10 +1,6 @@
-// ============================================================
-//  main.cpp  --  Travel Management System driver
-// ============================================================
 #include "header.h"
 using namespace std;
 
-// Read an integer from the user, restricted to [minValue, maxValue].
 static int readIntChoice(int minValue, int maxValue)
 {
     int choice;
@@ -50,6 +46,7 @@ static string getUsernamePrompt(const string& currentUser)
 static void adminMenu()
 {
     Admin          admin;
+    Accounts       accounts;
     PlannedPackage planned;
     CustomPackage  custom;
 
@@ -97,18 +94,15 @@ static void adminMenu()
                 cout << "City name: ";
                 getline(cin, name);
 
-                // Normalize so "lahore" / "LAHORE" / "  Lahore  "
-                // all behave the same.
                 string nice = normalizeCityName(name);
                 if (nice.empty())
                 {
-                    cout << "City name cannot be empty.\n";
+                    cout << "Invalid city name. Use letters only (e.g. Lahore, New York).\n";
                     break;
                 }
 
                 double lat = 0.0, lon = 0.0;
 
-                // 1) Already in cities.csv? (case-insensitive)
                 if (findCityInCSV(nice, lat, lon))
                 {
                     cout << nice << " is already in cities.csv "
@@ -116,7 +110,6 @@ static void adminMenu()
                     break;
                 }
 
-                // 2) Try the online geocoder.
                 cout << "Looking up '" << nice << "' online...\n";
                 bool ok = geocode(nice, lat, lon);
 
@@ -127,7 +120,6 @@ static void adminMenu()
                 }
                 else
                 {
-                    // 3) Fallback: ask the user.
                     cout << "Could not auto-fetch coordinates "
                         "(no internet, or city not found).\n";
                     cout << "Please enter them manually.\n";
@@ -145,8 +137,8 @@ static void adminMenu()
             case 7:  planned.removeExpiredPackages(); break;
             case 8:  custom.viewPending(); break;
             case 9:  custom.approvePackage(); break;
-            case 10: admin.findRevenue(); break;
-            case 11: admin.sortedPayments(); break;
+            case 10: admin.findRevenue(&accounts); break;
+            case 11: admin.sortedPayments(&accounts); break;
             default: break;
             }
         }

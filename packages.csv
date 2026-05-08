@@ -1,1 +1,4 @@
 PackageID,Start,Destination,Price,Hotel,Capacity,DepartureDate,ExpiryDate,Category
+LAH-ISL-1,Lahore,Islamabad,21070,lanzhou,5,2026-08-05,2026-09-07,N.Areas
+LAH-ISL-2,Lahore,Islamabad,20000,PC,10,2026-07-05,2026-07-06,N.Areas
+KAR-LAH-1,Karachi,Lahore,80000,PMA,12,2026-08-05,2026-08-20,Coastal

@@ -1,6 +1,18 @@
 Username,Message,Date,IsRead
 ALI,Welcome! You are now subscribed to package updates.,2026-05-05,NO
 ALI,New package available: KHI-CHI (Karachi -> Chiniot),2026-05-07,NO
-Ali,Welcome! You are now subscribed to package updates.,2026-05-07,NO
+Ali,Welcome! You are now subscribed to package updates.,2026-05-07,YES
 ALI,New package available: KHISL (karaChI -> Islamabad),2026-05-07,NO
-Ali,New package available: KHISL (karaChI -> Islamabad),2026-05-07,NO
+Ali,New package available: KHISL (karaChI -> Islamabad),2026-05-07,YES
+ALI,New package available: LHR-ISL-1 (Lahore -> Islamabad),2026-05-08,NO
+Ali,New package available: LHR-ISL-1 (Lahore -> Islamabad),2026-05-08,YES
+ALI,New package available: LHR-ISL-1 (LAHORE -> ISLAMABAD),2026-05-08,NO
+Ali,New package available: LHR-ISL-1 (LAHORE -> ISLAMABAD),2026-05-08,YES
+ALI,New package available: LAHORE (ISLAMABAD -> LAHORE),2026-05-08,NO
+Ali,New package available: LAHORE (ISLAMABAD -> LAHORE),2026-05-08,YES
+ALI,New package available: LAH-ISL-1 (Lahore -> Islamabad),2026-05-08,NO
+Ali,New package available: LAH-ISL-1 (Lahore -> Islamabad),2026-05-08,YES
+ALI,New package available: LAH-ISL-2 (Lahore -> Islamabad),2026-05-08,NO
+Ali,New package available: LAH-ISL-2 (Lahore -> Islamabad),2026-05-08,YES
+ALI,New package available: KAR-LAH-1 (Karachi -> Lahore),2026-05-08,NO
+Ali,New package available: KAR-LAH-1 (Karachi -> Lahore),2026-05-08,NO

@@ -14,7 +14,7 @@ namespace
         }
         return s;
     }
-    bool consoleCaptcha(const string& expected)
+    bool consoleCaptcha(const string &expected)
     {
         cout << "(Console reCaptcha) Please type: " << expected << "\n> ";
         string typed;
@@ -30,8 +30,7 @@ void Customer::signin()
         {"reCaptcha2.png", "ALliteRaTIoN"},
         {"reCaptcha3.png", "hou-se"},
         {"reCaptcha4.png", "b4ckgr0uzd"},
-        {"reCaptcha5.png", "JkL5Np"}
-    };
+        {"reCaptcha5.png", "JkL5Np"}};
     srand(static_cast<unsigned>(time(nullptr)));
     string username, password;
     cout << "Enter username of Customer\n";
@@ -223,7 +222,7 @@ bool Customer::findUsername()
         return false;
     }
     string line;
-    getline(fileIn, line); 
+    getline(fileIn, line);
     while (getline(fileIn, line))
     {
         size_t comma = line.find(',');
@@ -267,7 +266,7 @@ bool Customer::checkPassword()
     return false;
 }
 
-int Customer::checkGeneric(const string& password, int& numGeneric)
+int Customer::checkGeneric(const string &password, int &numGeneric)
 {
     ifstream fileIn("Generic.txt");
     if (!fileIn.is_open())

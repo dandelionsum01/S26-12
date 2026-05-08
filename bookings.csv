@@ -1,0 +1,3 @@
+BookingID,CustomerUsername,PackageID,DepartureDate,Payment,BookingDate
+BK-LAH-ISL-1-1,Ali,LAH-ISL-1,2026-08-05,18963,2026-05-08
+BK-LAH-ISL-2-1,Ali,LAH-ISL-2,2026-07-05,18000,2026-05-08

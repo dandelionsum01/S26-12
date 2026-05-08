@@ -8,24 +8,67 @@ Package::Package()
     capacity = 0;
 }
 
-void Package::setPackageID(const string& packageID) { this->packageID = packageID; }
-void Package::setStart(const string& start) { this->start = start; }
-void Package::setDestination(const string& destination) { this->destination = destination; }
-void Package::setPackageFee(int packageFee) { this->packageFee = packageFee; }
-void Package::setHotel(const string& hotel) { this->hotel = hotel; }
-void Package::setCapacity(int capacity) { this->capacity = capacity; }
-void Package::setDepartureDate(const string& departureDate) { this->departureDate = departureDate; }
+void Package::setPackageID(const string &packageID)
+{
+    this->packageID = packageID;
+}
+void Package::setStart(const string &start)
+{
+    this->start = start;
+}
+void Package::setDestination(const string &destination)
+{
+    this->destination = destination;
+}
+void Package::setPackageFee(int packageFee)
+{
+    this->packageFee = packageFee;
+}
+void Package::setHotel(const string &hotel)
+{
+    this->hotel = hotel;
+}
+void Package::setCapacity(int capacity)
+{
+    this->capacity = capacity;
+}
+void Package::setDepartureDate(const string &departureDate)
+{
+    this->departureDate = departureDate;
+}
 
-string Package::getPackageID()      const { return packageID; }
-string Package::getStart()          const { return start; }
-string Package::getDestination()    const { return destination; }
-int    Package::getPackageFee()     const { return packageFee; }
-string Package::getHotel()          const { return hotel; }
-int    Package::getCapacity()       const { return capacity; }
-string Package::getDepartureDate()  const { return departureDate; }
+string Package::getPackageID() const
+{
+    return packageID;
+}
+string Package::getStart() const
+{
+    return start;
+}
+string Package::getDestination() const
+{
+    return destination;
+}
+int Package::getPackageFee() const
+{
+    return packageFee;
+}
+
+string Package::getHotel() const
+{
+    return hotel;
+}
+int Package::getCapacity() const
+{
+    return capacity;
+}
+string Package::getDepartureDate() const
+{
+    return departureDate;
+}
 
 double Package::calculateDistance(double lat1, double lon1,
-    double lat2, double lon2)
+                                  double lat2, double lon2)
 {
     lat1 *= M_PI / 180.0;
     lat2 *= M_PI / 180.0;
@@ -35,14 +78,13 @@ double Package::calculateDistance(double lat1, double lon1,
     double dLat = (lat2 - lat1);
     double dLon = (lon2 - lon1);
     double a = pow(sin(dLat / 2.0), 2) +
-        cos(lat1) * cos(lat2) * pow(sin(dLon / 2.0), 2);
+               cos(lat1) * cos(lat2) * pow(sin(dLon / 2.0), 2);
     double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c;
 }
 
-void Package::setNewcity(const string& cityName, double lat, double lon)
+void Package::setNewcity(const string &cityName, double lat, double lon)
 {
-    // Normalize incoming name once; everything below uses `nice`.
     string nice = normalizeCityName(cityName);
     if (nice.empty())
     {
@@ -68,13 +110,12 @@ void Package::setNewcity(const string& cityName, double lat, double lon)
                 getline(checkFile, line); // header
                 while (getline(checkFile, line))
                 {
-                    if (line.empty()) continue;
+                    if (line.empty())
+                        continue;
                     stringstream ss(line);
                     string name;
                     getline(ss, name, ',');
 
-                    // Case-insensitive match: "Lahore" == "lahore"
-                    // == "  LAHORE  ".
                     if (toLowerCity(name) == niceLower)
                     {
                         cout << nice << " already exists!\n";
@@ -104,7 +145,7 @@ void Package::setNewcity(const string& cityName, double lat, double lon)
     cout << "City '" << nice << "' added!\n";
 }
 
-City* Package::loadCities(int& count)
+City *Package::loadCities(int &count)
 {
     count = 0;
     ifstream cityFile("cities.csv");
@@ -118,19 +159,22 @@ City* Package::loadCities(int& count)
     getline(cityFile, line); // header
     while (getline(cityFile, line))
     {
-        if (!line.empty()) count++;
+        if (!line.empty())
+            count++;
     }
     cityFile.close();
 
-    if (count == 0) return nullptr;
+    if (count == 0)
+        return nullptr;
 
-    City* cities = new City[count];
+    City *cities = new City[count];
     ifstream cityFile2("cities.csv");
     int i = 0;
     getline(cityFile2, line); // header
     while (getline(cityFile2, line) && i < count)
     {
-        if (line.empty()) continue;
+        if (line.empty())
+            continue;
 
         stringstream ss(line);
         string name, lat, lon;
@@ -145,7 +189,7 @@ City* Package::loadCities(int& count)
             cities[i].lon = stod(lon);
             i++;
         }
-        catch (const exception&)
+        catch (const exception &)
         {
             // Skip malformed row
         }
@@ -155,39 +199,53 @@ City* Package::loadCities(int& count)
     return cities;
 }
 
-int Package::displayRouteInfo(const string& From, const string& To)
+int Package::displayRouteInfo(const string &From, const string &To)
 {
     int count = 0;
-    City* cities = loadCities(count);
+    City *cities = loadCities(count);
     if (cities == nullptr)
     {
         cout << "No cities found!\n";
-        return 0;
+        return -1;
     }
+
+    string fromLower = toLowerCity(From);
+    string toLower = toLowerCity(To);
 
     City fromCity{}, toCity{};
     bool fromFound = false, toFound = false;
     for (int i = 0; i < count; i++)
     {
-        if (cities[i].name == From) { fromCity = cities[i]; fromFound = true; }
-        if (cities[i].name == To) { toCity = cities[i]; toFound = true; }
+        if (toLowerCity(cities[i].name) == fromLower)
+        {
+            fromCity = cities[i];
+            fromFound = true;
+        }
+        if (toLowerCity(cities[i].name) == toLower)
+        {
+            toCity = cities[i];
+            toFound = true;
+        }
     }
     delete[] cities;
 
     if (!fromFound || !toFound)
     {
-        cout << "City not found!\n";
-        return 0;
+        if (!fromFound)
+            cout << "Start city '" << From << "' not found in cities.csv!\n";
+        if (!toFound)
+            cout << "Destination '" << To << "' not found in cities.csv!\n";
+        return -1;
     }
 
     double distance = calculateDistance(fromCity.lat, fromCity.lon,
-        toCity.lat, toCity.lon);
+                                        toCity.lat, toCity.lon);
     double travelTime = distance / 80.0;
-    int    Travelhours = static_cast<int>(travelTime);
-    int    Travelmins = static_cast<int>((travelTime - Travelhours) * 60);
+    int Travelhours = static_cast<int>(travelTime);
+    int Travelmins = static_cast<int>((travelTime - Travelhours) * 60);
     double FuelPerLitre = 390.0;
     double FuelEfficiency = 5.0;
-    int    FuelCost = static_cast<int>((distance / FuelEfficiency) * FuelPerLitre);
+    int FuelCost = static_cast<int>((distance / FuelEfficiency) * FuelPerLitre);
 
     cout << "\n--- Route Information ---\n";
     cout << "From:        " << From << "\n";
@@ -202,7 +260,7 @@ int Package::displayRouteInfo(const string& From, const string& To)
 void Package::displayCities()
 {
     int count = 0;
-    City* cities = loadCities(count);
+    City *cities = loadCities(count);
     if (count == 0)
     {
         cout << "No cities found!\n";
@@ -219,7 +277,5 @@ void Package::displayCities()
 
 int Package::getDynamicPrice()
 {
-    // Dynamic pricing logic is centralised in Booking::makeBooking
-    // (which has live capacity info from bookings.csv).
     return getPackageFee();
 }

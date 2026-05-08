@@ -1,11 +1,11 @@
 #include "header.h"
 using namespace std;
 
-void UserManagement::setUsername(const string& username)
+void UserManagement::setUsername(const string &username)
 {
     this->username = username;
 }
-void UserManagement::setPassword(const string& password)
+void UserManagement::setPassword(const string &password)
 {
     this->password = password;
 }
@@ -18,7 +18,7 @@ string UserManagement::getPassword() const
     return password;
 }
 
-void UserManagement::countdownTimer(int& set)
+void UserManagement::countdownTimer(int &set)
 {
     int t = 30 * static_cast<int>(pow(2, set));
     system("cls");

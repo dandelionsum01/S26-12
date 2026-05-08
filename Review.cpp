@@ -13,12 +13,12 @@ namespace
     string todayStrR()
     {
         time_t t = time(0);
-        tm* now = localtime(&t);
-        char   buf[20];
+        tm *now = localtime(&t);
+        char buf[20];
         strftime(buf, sizeof(buf), "%Y-%m-%d", now);
         return string(buf);
     }
-    bool hasBooking(const string& username, const string& packageID)
+    bool hasBooking(const string &username, const string &packageID)
     {
         ifstream f("bookings.csv");
         if (!f.is_open())
@@ -61,16 +61,16 @@ namespace
     }
 }
 
-void   CustomerReview::setComment(const string& c)
+void CustomerReview::setComment(const string &c)
 {
-    comment = c; 
+    comment = c;
 }
 string CustomerReview::getComment() const
 {
     return comment;
 }
 
-void CustomerReview::addReview(const string& username, const string& packageID)
+void CustomerReview::addReview(const string &username, const string &packageID)
 {
     if (!hasBooking(username, packageID))
     {
@@ -104,7 +104,7 @@ void CustomerReview::addReview(const string& username, const string& packageID)
     }
     cout << "Your comment: ";
     getline(cin, reviewText);
-    for (char& c : reviewText)
+    for (char &c : reviewText)
     {
         if (c == ',')
         {
@@ -135,7 +135,7 @@ void CustomerReview::addReview(const string& username, const string& packageID)
     cout << "Review submitted successfully! (ID: " << reviewID << ")\n";
 }
 
-void CustomerReview::readReview(const string& packageID)
+void CustomerReview::readReview(const string &packageID)
 {
     ifstream f("reviews.csv");
     if (!f.is_open())
@@ -144,7 +144,7 @@ void CustomerReview::readReview(const string& packageID)
         return;
     }
     string line;
-    getline(f, line); 
+    getline(f, line);
     bool found = false;
     cout << "\n========== Reviews for Package: " << packageID << " ==========\n";
     while (getline(f, line))
@@ -161,7 +161,7 @@ void CustomerReview::readReview(const string& packageID)
         {
             found = true;
             cout << "  [" << rid << "]  " << uname
-                << "  (" << date << ")\n";
+                 << "  (" << date << ")\n";
             cout << "  " << cmt << "\n";
             cout << string(55, '-') << "\n";
         }
@@ -171,4 +171,42 @@ void CustomerReview::readReview(const string& packageID)
         cout << "No reviews yet for this package.\n";
     }
     cout << "====================================================\n";
+}
+
+void CustomerReview::readAllReviews()
+{
+    ifstream f("reviews.csv");
+    if (!f.is_open())
+    {
+        cout << "No reviews found!\n";
+        return;
+    }
+    string line;
+    getline(f, line); // header
+    bool any = false;
+
+    cout << "\n========== All Customer Reviews ==========\n";
+    while (getline(f, line))
+    {
+        if (line.empty())
+            continue;
+        stringstream ss(line);
+        string rid, uname, pkgID, cmt, date;
+        getline(ss, rid, ',');
+        getline(ss, uname, ',');
+        getline(ss, pkgID, ',');
+        getline(ss, cmt, ',');
+        getline(ss, date, ',');
+        date = trimWSR(date);
+        any = true;
+        cout << "  [" << rid << "]  Package: " << pkgID
+             << "  by " << uname << "  (" << date << ")\n";
+        cout << "  " << cmt << "\n";
+        cout << string(55, '-') << "\n";
+    }
+    if (!any)
+    {
+        cout << "(no reviews yet)\n";
+    }
+    cout << "==========================================\n";
 }

@@ -8,9 +8,8 @@ Accounts::Accounts()
 
 void Accounts::calculateRevenue()
 {
-	netRevenue = 0; // reset every call so repeated calls don't double-count
+	netRevenue = 0;
 
-	// ---- Read seed payments from BookingPayments.csv ----
 	{
 		ifstream seedFile("BookingPayments.csv");
 		if (seedFile.is_open())
@@ -19,16 +18,15 @@ void Accounts::calculateRevenue()
 			getline(seedFile, seedLine); // header
 			while (getline(seedFile, seedLine))
 			{
-				if (seedLine.empty()) continue; // skip blank trailing line
+				if (seedLine.empty())
+					continue; // skip blank trailing line
 
 				int payment = 0;
 				int delimPos = 0;
 
-				// walk to the first comma
 				for (int i = 0; i < (int)seedLine.length() && seedLine[i] != ','; i++)
 					delimPos++;
 
-				// payment is the column AFTER the first comma, BEFORE the second
 				for (int i = delimPos + 1; i < (int)seedLine.length() && seedLine[i] != ','; i++)
 				{
 					if (seedLine[i] >= '0' && seedLine[i] <= '9')
@@ -40,9 +38,6 @@ void Accounts::calculateRevenue()
 		}
 	}
 
-	// ---- Also include live bookings from bookings.csv ----
-	// bookings.csv columns: BookingID,CustomerUsername,PackageID,DepartureDate,Payment,BookingDate
-	// payment is the 5th column (index 4)
 	{
 		ifstream liveFile("bookings.csv");
 		if (liveFile.is_open())
@@ -51,14 +46,15 @@ void Accounts::calculateRevenue()
 			getline(liveFile, liveLine); // header
 			while (getline(liveFile, liveLine))
 			{
-				if (liveLine.empty()) continue;
+				if (liveLine.empty())
+					continue;
 
-				// skip the first 4 commas
 				int commaCount = 0;
 				int i = 0;
 				while (i < (int)liveLine.length() && commaCount < 4)
 				{
-					if (liveLine[i] == ',') commaCount++;
+					if (liveLine[i] == ',')
+						commaCount++;
 					i++;
 				}
 
@@ -73,6 +69,51 @@ void Accounts::calculateRevenue()
 			liveFile.close();
 		}
 	}
+
+	{
+		ifstream customFile("custom_packages.csv");
+		if (customFile.is_open())
+		{
+			string customLine;
+			getline(customFile, customLine); // header
+			while (getline(customFile, customLine))
+			{
+				if (customLine.empty())
+					continue;
+
+				int commaCount = 0;
+				int i = 0;
+				while (i < (int)customLine.length() && commaCount < 8)
+				{
+					if (customLine[i] == ',')
+						commaCount++;
+					i++;
+				}
+
+				int payment = 0;
+				while (i < (int)customLine.length() && customLine[i] != ',')
+				{
+					if (customLine[i] >= '0' && customLine[i] <= '9')
+						payment = payment * 10 + (customLine[i] - '0');
+					i++;
+				}
+				if (i < (int)customLine.length())
+					i++; // step past comma
+
+				string status;
+				while (i < (int)customLine.length() && customLine[i] != ',' &&
+					   customLine[i] != '\r' && customLine[i] != '\n')
+				{
+					status += customLine[i];
+					i++;
+				}
+
+				if (status == "APPROVED")
+					netRevenue += payment;
+			}
+			customFile.close();
+		}
+	}
 }
 
 void Accounts::displayRevenue()
@@ -80,11 +121,10 @@ void Accounts::displayRevenue()
 	cout << "\nNet Revenue: " << netRevenue << "\n";
 }
 
-payData* Accounts::readPayments(int& numPayments)
+payData *Accounts::readPayments(int &numPayments)
 {
-	numPayments = 0; // initialize to 0 (caller may have passed any value)
+	numPayments = 0;
 
-	// ---- First pass: count rows in BOTH files ----
 	int seedRows = 0;
 	{
 		ifstream countSeed("BookingPayments.csv");
@@ -93,7 +133,8 @@ payData* Accounts::readPayments(int& numPayments)
 			string countLine;
 			getline(countSeed, countLine); // header
 			while (getline(countSeed, countLine))
-				if (!countLine.empty()) seedRows++;
+				if (!countLine.empty())
+					seedRows++;
 			countSeed.close();
 		}
 	}
@@ -106,19 +147,44 @@ payData* Accounts::readPayments(int& numPayments)
 			string countLine;
 			getline(countLive, countLine); // header
 			while (getline(countLive, countLine))
-				if (!countLine.empty()) liveRows++;
+				if (!countLine.empty())
+					liveRows++;
 			countLive.close();
 		}
 	}
 
-	numPayments = seedRows + liveRows;
+	int customRows = 0;
+	{
+		ifstream countCust("custom_packages.csv");
+		if (countCust.is_open())
+		{
+			string countLine;
+			getline(countCust, countLine); // header
+			while (getline(countCust, countLine))
+			{
+				if (countLine.empty())
+					continue;
+				string trimmed = countLine;
+				while (!trimmed.empty() && (trimmed.back() == '\r' || trimmed.back() == '\n'))
+					trimmed.pop_back();
+				size_t lastComma = trimmed.find_last_of(',');
+				if (lastComma == string::npos)
+					continue;
+				string status = trimmed.substr(lastComma + 1);
+				if (status == "APPROVED")
+					customRows++;
+			}
+			countCust.close();
+		}
+	}
+
+	numPayments = seedRows + liveRows + customRows;
 	if (numPayments == 0)
 		return nullptr;
 
-	payData* paydata = new payData[numPayments];
+	payData *paydata = new payData[numPayments];
 	int payIn = 0;
 
-	// ---- Second pass: fill array from BookingPayments.csv ----
 	{
 		ifstream readSeed("BookingPayments.csv");
 		if (readSeed.is_open())
@@ -127,7 +193,8 @@ payData* Accounts::readPayments(int& numPayments)
 			getline(readSeed, readLine); // header
 			while (getline(readSeed, readLine) && payIn < numPayments)
 			{
-				if (readLine.empty()) continue;
+				if (readLine.empty())
+					continue;
 
 				int delimPos = 0;
 				int payment = 0;
@@ -150,8 +217,6 @@ payData* Accounts::readPayments(int& numPayments)
 		}
 	}
 
-	// ---- Second pass: fill array from bookings.csv ----
-	// columns: BookingID,CustomerUsername,PackageID,DepartureDate,Payment,BookingDate
 	{
 		ifstream readLive("bookings.csv");
 		if (readLive.is_open())
@@ -160,31 +225,33 @@ payData* Accounts::readPayments(int& numPayments)
 			getline(readLive, readLine); // header
 			while (getline(readLive, readLine) && payIn < numPayments)
 			{
-				if (readLine.empty()) continue;
+				if (readLine.empty())
+					continue;
 
-				// 1st field: BookingID  -> skip
 				int i = 0;
-				while (i < (int)readLine.length() && readLine[i] != ',') i++;
-				if (i < (int)readLine.length()) i++; // step past the comma
+				while (i < (int)readLine.length() && readLine[i] != ',')
+					i++;
+				if (i < (int)readLine.length())
+					i++; // step past the comma
 
-				// 2nd field: CustomerUsername  -> store as username
 				paydata[payIn].username = "";
 				while (i < (int)readLine.length() && readLine[i] != ',')
 				{
 					paydata[payIn].username += readLine[i];
 					i++;
 				}
-				if (i < (int)readLine.length()) i++;
+				if (i < (int)readLine.length())
+					i++;
 
-				// 3rd field: PackageID  -> skip
-				while (i < (int)readLine.length() && readLine[i] != ',') i++;
-				if (i < (int)readLine.length()) i++;
+				while (i < (int)readLine.length() && readLine[i] != ',')
+					i++;
+				if (i < (int)readLine.length())
+					i++;
+				while (i < (int)readLine.length() && readLine[i] != ',')
+					i++;
+				if (i < (int)readLine.length())
+					i++;
 
-				// 4th field: DepartureDate -> skip
-				while (i < (int)readLine.length() && readLine[i] != ',') i++;
-				if (i < (int)readLine.length()) i++;
-
-				// 5th field: Payment
 				int payment = 0;
 				while (i < (int)readLine.length() && readLine[i] != ',')
 				{
@@ -199,11 +266,70 @@ payData* Accounts::readPayments(int& numPayments)
 		}
 	}
 
-	numPayments = payIn; // actual filled count (in case some rows were skipped)
+	{
+		ifstream readCust("custom_packages.csv");
+		if (readCust.is_open())
+		{
+			string readLine;
+			getline(readCust, readLine); // header
+			while (getline(readCust, readLine) && payIn < numPayments)
+			{
+				if (readLine.empty())
+					continue;
+
+				while (!readLine.empty() &&
+					   (readLine.back() == '\r' || readLine.back() == '\n'))
+					readLine.pop_back();
+
+				size_t lastComma = readLine.find_last_of(',');
+				if (lastComma == string::npos)
+					continue;
+				string status = readLine.substr(lastComma + 1);
+				if (status != "APPROVED")
+					continue;
+
+				int i = 0;
+				while (i < (int)readLine.length() && readLine[i] != ',')
+					i++;
+				if (i < (int)readLine.length())
+					i++;
+
+				paydata[payIn].username = "";
+				while (i < (int)readLine.length() && readLine[i] != ',')
+				{
+					paydata[payIn].username += readLine[i];
+					i++;
+				}
+				if (i < (int)readLine.length())
+					i++;
+
+				for (int skip = 0; skip < 6; ++skip)
+				{
+					while (i < (int)readLine.length() && readLine[i] != ',')
+						i++;
+					if (i < (int)readLine.length())
+						i++;
+				}
+
+				int payment = 0;
+				while (i < (int)readLine.length() && readLine[i] != ',')
+				{
+					if (readLine[i] >= '0' && readLine[i] <= '9')
+						payment = payment * 10 + (readLine[i] - '0');
+					i++;
+				}
+				paydata[payIn].payment = payment;
+				payIn++;
+			}
+			readCust.close();
+		}
+	}
+
+	numPayments = payIn;
 	return paydata;
 }
 
-int Accounts::partition(payData* paydata, int start, int end)
+int Accounts::partition(payData *paydata, int start, int end)
 {
 	int pivot = paydata[end].payment;
 	int i = start - 1;
@@ -224,7 +350,7 @@ int Accounts::partition(payData* paydata, int start, int end)
 	return i;
 }
 
-void Accounts::quicksortPayments(payData* paydata, int start, int end)
+void Accounts::quicksortPayments(payData *paydata, int start, int end)
 {
 	if (start >= end)
 		return;
