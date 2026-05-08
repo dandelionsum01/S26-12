@@ -120,11 +120,12 @@ class Admin : public UserManagement
 
 public:
     Admin();
+    ~Admin();             
     void signin() override;
     bool findUsername() override;
     bool checkPassword() override;
-    void findRevenue(Accounts* accounts);
-    void sortedPayments(Accounts* accounts);
+    void findRevenue();
+    void sortedPayments();
 };
 
 // ============================================================

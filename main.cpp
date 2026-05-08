@@ -50,7 +50,6 @@ static string getUsernamePrompt(const string& currentUser)
 static void adminMenu()
 {
     Admin          admin;
-    Accounts       accounts;
     PlannedPackage planned;
     CustomPackage  custom;
 
@@ -146,8 +145,8 @@ static void adminMenu()
             case 7:  planned.removeExpiredPackages(); break;
             case 8:  custom.viewPending(); break;
             case 9:  custom.approvePackage(); break;
-            case 10: admin.findRevenue(&accounts); break;
-            case 11: admin.sortedPayments(&accounts); break;
+            case 10: admin.findRevenue(); break;
+            case 11: admin.sortedPayments(); break;
             default: break;
             }
         }

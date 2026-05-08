@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-<VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgTriplet>x64-windows</VcpkgTriplet>
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -163,6 +163,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="vcpkg.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\HP\Downloads\TravelAndTourManagementSystem.drawio" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
