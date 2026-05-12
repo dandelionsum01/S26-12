@@ -1,3 +1,4 @@
+
 #include "header.h"
 using namespace std;
 
@@ -16,36 +17,44 @@ void CustomPackage::setNights(int nights)
 {
     this->nights = nights;
 }
+
 void CustomPackage::setCarRental(bool carRental)
 {
     this->carRental = carRental;
 }
+
 void CustomPackage::setCustomerUsername(const string &u)
 {
     this->customerUsername = u;
 }
+
 void CustomPackage::setStatus(PackageStatus status)
 {
     this->status = status;
 }
+
 void CustomPackage::setHotelCategory(HotelCategory hc) { this->hotelCategory = hc; }
 
 int CustomPackage::getNights() const
 {
     return nights;
 }
+
 bool CustomPackage::getCarRental() const
 {
     return carRental;
 }
+
 string CustomPackage::getCustomerUsername() const
 {
     return customerUsername;
 }
+
 PackageStatus CustomPackage::getStatus() const
 {
     return status;
 }
+
 HotelCategory CustomPackage::getHotelCategory() const
 {
     return hotelCategory;
@@ -149,7 +158,6 @@ int CustomPackage::calculateBill()
     if (carRental)
         cout << "Car Rental (" << nights << " days):  Rs. " << carCost << "\n";
     cout << "Route Cost:           Rs. " << routeCost << "\n";
-    cout << "----------------------\n";
     cout << "Total:                Rs. " << total << "\n";
 
     return total;
