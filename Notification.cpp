@@ -14,7 +14,7 @@ namespace
     {
         time_t t = time(0);
         tm* now = localtime(&t);
-        char   buf[20];
+        char buf[20];
         strftime(buf, sizeof(buf), "%Y-%m-%d", now);
         return string(buf);
     }
@@ -26,15 +26,15 @@ NotificationPanel::NotificationPanel()
     isSubscribed = false;
 }
 
-void   NotificationPanel::setNotification(const string& msg)
+void NotificationPanel::setNotification(const string& msg)
 {
-    notification = msg; 
+    notification = msg;
 }
 string NotificationPanel::getNotification() const
 {
-    return notification; 
+    return notification;
 }
-bool   NotificationPanel::getIsSubscribed() const
+bool NotificationPanel::getIsSubscribed() const
 {
     return isSubscribed;
 }
@@ -45,7 +45,7 @@ void NotificationPanel::subscribe(const string& username)
     if (chk.is_open())
     {
         string line;
-        getline(chk, line); 
+        getline(chk, line);
         while (getline(chk, line))
         {
             if (trimWSN(line) == username)
@@ -104,7 +104,8 @@ void NotificationPanel::subscribe(const string& username)
 void broadcastNotification(const string& message)
 {
     ifstream subFile("subscriptions.csv");
-    if (!subFile.is_open()) return;
+    if (!subFile.is_open())
+        return;
     bool isEmpty = true;
     {
         ifstream chk("notifications.csv");
