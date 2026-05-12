@@ -8,7 +8,7 @@ Accounts::Accounts()
 
 void Accounts::calculateRevenue()
 {
-	netRevenue = 0;
+	netRevenue = 0;  
 
 	{
 		ifstream seedFile("BookingPayments.csv");
