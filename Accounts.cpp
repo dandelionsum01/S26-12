@@ -345,7 +345,7 @@ int Accounts::partition(payData *paydata, int start, int end)
 	}
 	i++;
 	payData temp = paydata[i];
-	paydata[i] = paydata[end];
+	paydata[i] = paydata[end] ;
 	paydata[end] = temp;
 	return i;
 }
