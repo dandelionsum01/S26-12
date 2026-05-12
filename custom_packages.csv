@@ -1,2 +1,11 @@
 PackageID,CustomerUsername,Start,Destination,HotelCategory,Nights,CarRental,DepartureDate,TotalCost,Status
 C-AliIsl,Aliyan,Lahore,Islamabad,LUXURY,3,Yes,2026-08-06,31201,APPROVED
+C-AliKar,Ali,Lahore,Karachi,STANDARD,2,Yes,2026-05-20,23320,APPROVED
+C-ZaiMul,Zaidi,Murree,Multan,BUDGET,3,No,2026-05-17,18040,REJECTED
+C-ZaiKar,Zaidi,Lahore,Karachi,LUXURY,2,Yes,2026-05-25,41320,APPROVED
+C-epsFai,epsilon_1,Karachi,Fairy meadows,LUXURY,2,Yes,2026-05-10,44770,REJECTED
+C-NadPES,Naday,KARACHI,PESHAWAR,STANDARD,1,Yes,2026-05-18,20570,REJECTED
+C-NadRAW,Naday,Lahore,RAWALPINDI,STANDARD,2,Yes,2026-05-18,15620,REJECTED
+C-waskar,wasif,Multan,karachi,LUXURY,2,Yes,2026-05-13,38380,APPROVED
+C-ZayKar,Zayn,Lahore,Karachi,LUXURY,1,Yes,2026-05-25,43820,REJECTED
+C-AliKag,Ali,sargodha,Kaghan,LUXURY,10,Yes,2026-05-27,98100,APPROVED
