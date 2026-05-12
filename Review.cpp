@@ -13,12 +13,12 @@ namespace
     string todayStrR()
     {
         time_t t = time(0);
-        tm *now = localtime(&t);
+        tm* now = localtime(&t);
         char buf[20];
         strftime(buf, sizeof(buf), "%Y-%m-%d", now);
         return string(buf);
     }
-    bool hasBooking(const string &username, const string &packageID)
+    bool hasBooking(const string& username, const string& packageID)
     {
         ifstream f("bookings.csv");
         if (!f.is_open())
@@ -61,7 +61,7 @@ namespace
     }
 }
 
-void CustomerReview::setComment(const string &c)
+void CustomerReview::setComment(const string& c)
 {
     comment = c;
 }
@@ -70,7 +70,7 @@ string CustomerReview::getComment() const
     return comment;
 }
 
-void CustomerReview::addReview(const string &username, const string &packageID)
+void CustomerReview::addReview(const string& username, const string& packageID)
 {
     if (!hasBooking(username, packageID))
     {
@@ -104,7 +104,7 @@ void CustomerReview::addReview(const string &username, const string &packageID)
     }
     cout << "Your comment: ";
     getline(cin, reviewText);
-    for (char &c : reviewText)
+    for (char& c : reviewText)
     {
         if (c == ',')
         {
@@ -135,7 +135,7 @@ void CustomerReview::addReview(const string &username, const string &packageID)
     cout << "Review submitted successfully! (ID: " << reviewID << ")\n";
 }
 
-void CustomerReview::readReview(const string &packageID)
+void CustomerReview::readReview(const string& packageID)
 {
     ifstream f("reviews.csv");
     if (!f.is_open())
@@ -161,7 +161,7 @@ void CustomerReview::readReview(const string &packageID)
         {
             found = true;
             cout << "  [" << rid << "]  " << uname
-                 << "  (" << date << ")\n";
+                << "  (" << date << ")\n";
             cout << "  " << cmt << "\n";
             cout << string(55, '-') << "\n";
         }
@@ -200,7 +200,7 @@ void CustomerReview::readAllReviews()
         date = trimWSR(date);
         any = true;
         cout << "  [" << rid << "]  Package: " << pkgID
-             << "  by " << uname << "  (" << date << ")\n";
+            << "  by " << uname << "  (" << date << ")\n";
         cout << "  " << cmt << "\n";
         cout << string(55, '-') << "\n";
     }
