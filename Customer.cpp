@@ -337,7 +337,7 @@ bool Customer::checkStrength()
         }
         if (numUpper < 1)
         {
-            cout << "at least 1 uppercase character, " ;
+            cout << "at least 1 uppercase character, ";
         }
         if (numGeneric > 0)
         {
