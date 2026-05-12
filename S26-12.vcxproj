@@ -148,18 +148,37 @@
     <ClCompile Include="Accounts.cpp" />
     <ClCompile Include="Admin.cpp" />
     <ClCompile Include="geocoder.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="GuiCore.cpp" />
+    <ClCompile Include="NetworkBackground.cpp" />
     <ClCompile Include="Booking.cpp" />
     <ClCompile Include="Customer.cpp" />
     <ClCompile Include="custom_Package.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Notification.cpp" />
     <ClCompile Include="Package.cpp" />
     <ClCompile Include="Planned_package.cpp" />
     <ClCompile Include="Review.cpp" />
+    <ClCompile Include="ScreenAddCity.cpp" />
+    <ClCompile Include="ScreenAddPackage.cpp" />
+    <ClCompile Include="ScreenAdminHome.cpp" />
+    <ClCompile Include="ScreenAuth.cpp" />
+    <ClCompile Include="ScreenBooking.cpp" />
+    <ClCompile Include="ScreenCustHome.cpp" />
+    <ClCompile Include="ScreenCustom.cpp" />
+    <ClCompile Include="ScreenCustomApproval.cpp" />
+    <ClCompile Include="ScreenLancher.cpp" />
+    <ClCompile Include="ScreenMyBookings.cpp" />
+    <ClCompile Include="ScreenNotifications.cpp" />
+    <ClCompile Include="ScreenPackages.cpp" />
+    <ClCompile Include="ScreenRevenue.cpp" />
+    <ClCompile Include="ScreenReviews.cpp" />
     <ClCompile Include="UserManagement.cpp" />
+    <ClCompile Include="Widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GuiCore.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="Widgets.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="vcpkg.json" />
