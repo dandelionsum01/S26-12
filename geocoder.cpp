@@ -8,7 +8,7 @@
 
 using namespace std;
 
-string toLowerCity(const string& s)
+string toLowerCity(const string &s)
 {
     string out;
     out.reserve(s.size());
@@ -17,19 +17,19 @@ string toLowerCity(const string& s)
     return out;
 }
 
-static string trim(const string& s)
+static string trim(const string &s)
 {
     size_t a = 0, b = s.size();
     while (a < b && (s[a] == ' ' || s[a] == '\t' ||
-        s[a] == '\r' || s[a] == '\n'))
+                     s[a] == '\r' || s[a] == '\n'))
         a++;
     while (b > a && (s[b - 1] == ' ' || s[b - 1] == '\t' ||
-        s[b - 1] == '\r' || s[b - 1] == '\n'))
+                     s[b - 1] == '\r' || s[b - 1] == '\n'))
         b--;
     return s.substr(a, b - a);
 }
 
-string normalizeCityName(const string& raw)
+string normalizeCityName(const string &raw)
 {
     string s = trim(raw);
     if (s.empty())
@@ -82,7 +82,7 @@ string normalizeCityName(const string& raw)
     return collapsed;
 }
 
-bool findCityInCSV(const string& cityName, double& lat, double& lon)
+bool findCityInCSV(const string &cityName, double &lat, double &lon)
 {
     ifstream f("cities.csv");
     if (!f.is_open())
@@ -119,20 +119,18 @@ bool findCityInCSV(const string& cityName, double& lat, double& lon)
     return false;
 }
 
-//  Internals for geocode()
-
 #ifndef NO_CURL
 namespace
 {
-    size_t writeCB(void* ptr, size_t size, size_t nmemb, void* userdata)
+    size_t writeCB(void *ptr, size_t size, size_t nmemb, void *userdata)
     {
         size_t total = size * nmemb;
-        string* out = static_cast<string*>(userdata);
-        out->append(static_cast<char*>(ptr), total);
+        string *out = static_cast<string *>(userdata);
+        out->append(static_cast<char *>(ptr), total);
         return total;
     }
 
-    string urlEncode(const string& s)
+    string urlEncode(const string &s)
     {
         string out;
         out.reserve(s.size() * 3);
@@ -158,8 +156,8 @@ namespace
         return out;
     }
 
-    bool extractStringField(const string& body,
-        const string& key, string& outVal)
+    bool extractStringField(const string &body,
+                            const string &key, string &outVal)
     {
         string needle = "\"" + key + "\"";
         size_t p = body.find(needle);
@@ -172,7 +170,7 @@ namespace
         p++;
 
         while (p < body.size() &&
-            (body[p] == ' ' || body[p] == '\t'))
+               (body[p] == ' ' || body[p] == '\t'))
             p++;
 
         if (p < body.size() && body[p] == '"')
@@ -187,7 +185,7 @@ namespace
 
         size_t q = p;
         while (q < body.size() &&
-            (isdigit(static_cast<unsigned char>(body[q])) ||
+               (isdigit(static_cast<unsigned char>(body[q])) ||
                 body[q] == '-' || body[q] == '.' ||
                 body[q] == '+' || body[q] == 'e' ||
                 body[q] == 'E'))
@@ -199,7 +197,7 @@ namespace
     }
 }
 #endif
-bool geocode(const string& cityName, double& lat, double& lon)
+bool geocode(const string &cityName, double &lat, double &lon)
 {
 #ifdef NO_CURL
     (void)cityName;
@@ -211,7 +209,7 @@ bool geocode(const string& cityName, double& lat, double& lon)
     if (clean.empty())
         return false;
 
-    CURL* curl = curl_easy_init();
+    CURL *curl = curl_easy_init();
     if (!curl)
         return false;
 
@@ -225,7 +223,7 @@ bool geocode(const string& cityName, double& lat, double& lon)
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(curl, CURLOPT_USERAGENT,
-        "TravelTourSystem/1.0 (student-project)");
+                     "TravelTourSystem/1.0 (student-project)");
 
     CURLcode res = curl_easy_perform(curl);
 
