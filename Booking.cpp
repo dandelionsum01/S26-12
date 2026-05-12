@@ -14,7 +14,7 @@ namespace
     string todayString()
     {
         time_t t = time(0);
-        tm *now = localtime(&t);
+        tm* now = localtime(&t);
         char buf[20];
         strftime(buf, sizeof(buf), "%Y-%m-%d", now);
         return string(buf);
@@ -25,7 +25,7 @@ namespace
         int price = 0;
         int capacity = 0;
     };
-    PkgRow *loadPackages(int &count)
+    PkgRow* loadPackages(int& count)
     {
         count = 0;
         ifstream f("packages.csv");
@@ -47,7 +47,7 @@ namespace
         {
             return nullptr;
         }
-        PkgRow *rows = new PkgRow[count];
+        PkgRow* rows = new PkgRow[count];
         ifstream f2("packages.csv");
         getline(f2, line);
         int i = 0;
@@ -77,14 +77,13 @@ namespace
             }
             catch (...)
             {
-                // Skip malformed row
             }
         }
         f2.close();
         count = i;
         return rows;
     }
-    int countBookings(const string &packageID)
+    int countBookings(const string& packageID)
     {
         int booked = 0;
         ifstream f("bookings.csv");
@@ -109,7 +108,7 @@ namespace
         f.close();
         return booked;
     }
-    string generateBookingID(const string &packageID)
+    string generateBookingID(const string& packageID)
     {
         int n = countBookings(packageID) + 1;
         return "BK-" + packageID + "-" + to_string(n);
@@ -127,11 +126,11 @@ void Booking::setPayment(int p)
 {
     payment = p;
 }
-void Booking::setPackageID(const string &id)
+void Booking::setPackageID(const string& id)
 {
     packageID = id;
 }
-void Booking::setCustomerUsername(const string &u)
+void Booking::setCustomerUsername(const string& u)
 {
     customerUsername = u;
 }
@@ -148,7 +147,7 @@ string Booking::getCustomerUsername() const
     return customerUsername;
 }
 
-bool Booking::checkCreditNum(const string &cardNum)
+bool Booking::checkCreditNum(const string& cardNum)
 {
     string digits;
     for (char c : cardNum)
@@ -179,7 +178,7 @@ bool Booking::checkCreditNum(const string &cardNum)
     return (sum % 10 == 0);
 }
 
-void Booking::updateCapacity(const string &pkgID)
+void Booking::updateCapacity(const string& pkgID)
 {
     ifstream fileIn("packages.csv");
     if (!fileIn.is_open())
@@ -249,7 +248,7 @@ void Booking::updateCapacity(const string &pkgID)
     }
 }
 
-int Booking::returnPayment(const string &customerUsername)
+int Booking::returnPayment(const string& customerUsername)
 {
     ifstream f("bookings.csv");
     if (!f.is_open())
@@ -284,10 +283,10 @@ int Booking::returnPayment(const string &customerUsername)
     return total;
 }
 
-void Booking::makeBooking(const string &customerUsername)
+void Booking::makeBooking(const string& customerUsername)
 {
     int pkgCount = 0;
-    PkgRow *packages = loadPackages(pkgCount);
+    PkgRow* packages = loadPackages(pkgCount);
     if (packages == nullptr || pkgCount == 0)
     {
         cout << "No packages available at the moment.\n";
