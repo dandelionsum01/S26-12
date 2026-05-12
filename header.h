@@ -1,3 +1,4 @@
+
 #pragma once
 
 #define _HAS_STD_BYTE 0
@@ -47,8 +48,6 @@ T readValue(const string &prompt)
     }
 }
 
-//  MEMBER A  --  User management & accounts
-
 class UserManagement
 {
     string username;
@@ -59,7 +58,6 @@ public:
     virtual void signin() = 0;
     virtual bool checkPassword() = 0;
     virtual bool findUsername() = 0;
-
     void setUsername(const string &username);
     void setPassword(const string &password);
     string getUsername() const;
@@ -163,9 +161,7 @@ public:
     void setCapacity(int capacity);
     void setDepartureDate(const string &departureDate);
     void setNewcity(const string &cityName, double lat, double lon);
-
     City *loadCities(int &count);
-
     string getPackageID() const;
     string getStart() const;
     string getDestination() const;
@@ -173,13 +169,11 @@ public:
     string getHotel() const;
     int getCapacity() const;
     string getDepartureDate() const;
-
     double calculateDistance(double lat1, double lon1,
                              double lat2, double lon2);
     void displayCities();
     int displayRouteInfo(const string &from, const string &to);
     int getDynamicPrice();
-
     virtual bool checkCapacity() = 0;
 };
 
@@ -191,18 +185,14 @@ class PlannedPackage : public Package
 
 public:
     PlannedPackage();
-
     static Category intToCategory(int choice);
     static string categoryToString(Category cat);
-
     void setExpiryDate(const string &expiryDate);
     void setBasePrice(int price);
     void setCategory(Category category);
-
     string getExpiryDate() const;
     int getBasePrice() const;
     Category getCategory() const;
-
     void addPackage();
     void deletePackage();
     void displayPackage();
@@ -228,19 +218,16 @@ public:
     void setCustomerUsername(const string &username);
     void setStatus(PackageStatus status);
     void setHotelCategory(HotelCategory hc);
-
     int getNights() const;
     bool getCarRental() const;
     string getCustomerUsername() const;
     PackageStatus getStatus() const;
     HotelCategory getHotelCategory() const;
-
     void enterDetails(const string &customerUsername);
     void viewPending();
     bool approvePackage();
     int calculateBill();
     bool checkCapacity() override;
-
     static HotelCategory intToHotelCategory(int choice);
     static string CategoryToString(HotelCategory hc);
     int getHotelPrice() const;
@@ -256,15 +243,12 @@ class Booking
 
 public:
     Booking();
-
     void setPayment(int payment);
     void setPackageID(const string &packageID);
     void setCustomerUsername(const string &username);
-
     int getPayment() const;
     string getPackageID() const;
     string getCustomerUsername() const;
-
     void makeBooking(const string &customerUsername);
     void updateCapacity(const string &packageID);
     int returnPayment(const string &customerUsername);
@@ -290,21 +274,15 @@ class NotificationPanel
 
 public:
     NotificationPanel();
-
     void setNotification(const string &notification);
     string getNotification() const;
     bool getIsSubscribed() const;
-
     void subscribe(const string &username);
     void displayNotification(const string &username);
 };
 
 void broadcastNotification(const string &message);
-
 bool geocode(const string &cityName, double &lat, double &lon);
-
 bool findCityInCSV(const string &cityName, double &lat, double &lon);
-
 string normalizeCityName(const string &raw);
-
 string toLowerCity(const string &s);

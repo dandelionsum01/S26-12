@@ -1,4 +1,5 @@
-﻿#define _USE_MATH_DEFINES
+﻿
+#define _USE_MATH_DEFINES
 #include "header.h"
 using namespace std;
 
@@ -66,7 +67,7 @@ string Package::getDepartureDate() const
 {
     return departureDate;
 }
-
+// haversine
 double Package::calculateDistance(double lat1, double lon1,
                                   double lat2, double lon2)
 {
@@ -156,25 +157,26 @@ City *Package::loadCities(int &count)
     }
 
     string line;
-    getline(cityFile, line); // header
+    getline(cityFile, line); // skip header row
     while (getline(cityFile, line))
     {
         if (!line.empty())
-            count++;
+            count++; // Count each valid data row
     }
     cityFile.close();
 
+    // If no city records found, return nullptr
     if (count == 0)
         return nullptr;
 
     City *cities = new City[count];
     ifstream cityFile2("cities.csv");
     int i = 0;
-    getline(cityFile2, line); // header
+    getline(cityFile2, line); // skip header row
     while (getline(cityFile2, line) && i < count)
     {
         if (line.empty())
-            continue;
+            continue; // Skip empty lines
 
         stringstream ss(line);
         string name, lat, lon;
@@ -191,7 +193,6 @@ City *Package::loadCities(int &count)
         }
         catch (const exception &)
         {
-            // Skip malformed row
         }
     }
     cityFile2.close();
@@ -275,6 +276,7 @@ void Package::displayCities()
     delete[] cities;
 }
 
+// return the current package fee
 int Package::getDynamicPrice()
 {
     return getPackageFee();

@@ -8,16 +8,35 @@ PlannedPackage::PlannedPackage()
     category = Category::NORTHERN_AREAS;
 }
 
-void PlannedPackage::setExpiryDate(const string &expiryDate) { this->expiryDate = expiryDate; }
-void PlannedPackage::setBasePrice(int price) { this->basePrice = price; }
+void PlannedPackage::setExpiryDate(const string &expiryDate)
+{
+    this->expiryDate = expiryDate;
+}
+
+void PlannedPackage::setBasePrice(int price)
+{
+    this->basePrice = price;
+}
+
 void PlannedPackage::setCategory(Category category)
 {
     this->category = category;
 }
 
-string PlannedPackage::getExpiryDate() const { return expiryDate; }
-int PlannedPackage::getBasePrice() const { return basePrice; }
-Category PlannedPackage::getCategory() const { return category; }
+string PlannedPackage::getExpiryDate() const
+{
+    return expiryDate;
+}
+
+int PlannedPackage::getBasePrice() const
+{
+    return basePrice;
+}
+
+Category PlannedPackage::getCategory() const
+{
+    return category;
+}
 
 Category PlannedPackage::intToCategory(int choice)
 {
@@ -56,8 +75,6 @@ string PlannedPackage::categoryToString(Category cat)
 //  Local helpers (file-private)
 namespace
 {
-    // Strict YYYY-MM-DD validator.
-    bool isValidDate(const string &d)
     {
         if (d.length() != 10)
             return false;
@@ -173,7 +190,7 @@ namespace
             n++;
         }
     }
-} // namespace
+}
 
 void PlannedPackage::addPackage()
 {
