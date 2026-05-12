@@ -2,6 +2,17 @@
   "name": "travel-tour-system",
   "version-string": "1.0.0",
   "dependencies": [
-    "curl"
-  ]
+    "curl",
+    {
+      "name": "sfml",
+      "version>=": "2.6.1"
+    }
+  ],
+  "overrides": [
+    {
+      "name": "sfml",
+      "version": "2.6.1"
+    }
+  ],
+  "builtin-baseline": "bc71aa640f89933294f16e004b212c7fd3183eed"
 }
