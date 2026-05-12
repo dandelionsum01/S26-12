@@ -1,4 +1,4 @@
-﻿#include "header.h"
+#include "header.h"
 using namespace std;
 
 PlannedPackage::PlannedPackage()
@@ -12,12 +12,10 @@ void PlannedPackage::setExpiryDate(const string &expiryDate)
 {
     this->expiryDate = expiryDate;
 }
-
 void PlannedPackage::setBasePrice(int price)
 {
     this->basePrice = price;
 }
-
 void PlannedPackage::setCategory(Category category)
 {
     this->category = category;
@@ -27,12 +25,10 @@ string PlannedPackage::getExpiryDate() const
 {
     return expiryDate;
 }
-
 int PlannedPackage::getBasePrice() const
 {
     return basePrice;
 }
-
 Category PlannedPackage::getCategory() const
 {
     return category;
@@ -72,9 +68,9 @@ string PlannedPackage::categoryToString(Category cat)
     }
 }
 
-//  Local helpers (file-private)
 namespace
 {
+    bool isValidDate(const string &d)
     {
         if (d.length() != 10)
             return false;
@@ -190,7 +186,7 @@ namespace
             n++;
         }
     }
-}
+} // namespace
 
 void PlannedPackage::addPackage()
 {
