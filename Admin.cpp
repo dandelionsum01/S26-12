@@ -98,7 +98,7 @@ bool Admin::checkPassword()
     }
     fileIn.close();
     return false;
-}
+}8
 
 void Admin::findRevenue(Accounts *accounts)
 {
