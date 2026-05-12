@@ -30,7 +30,7 @@ void UserManagement::countdownTimer(int &set)
         }
         else
         {
-            cout << "Try again after " << t << " seconds" << "\r";
+            cout << "Try again after " << t << " seconds" << "\r" ;
         }
         cout.flush();
         this_thread::sleep_for(chrono::seconds(1));
