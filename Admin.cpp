@@ -98,19 +98,20 @@ bool Admin::checkPassword()
     }
     fileIn.close();
     return false;
-}8
+}
 
-void Admin::findRevenue(Accounts *accounts)
+void Admin::findRevenue(Accounts* accounts)
 {
+
     this->accounts = accounts;
     this->accounts->calculateRevenue();
     this->accounts->displayRevenue();
 }
 
-void Admin::sortedPayments(Accounts *accounts)
+void Admin::sortedPayments(Accounts* accounts)
 {
     int numPayments = 0;
-    payData *paydata = accounts->readPayments(numPayments) ;
+    payData* paydata = accounts->readPayments(numPayments);
     if (paydata == nullptr || numPayments == 0)
     {
         cout << "No payments to sort.\n";
