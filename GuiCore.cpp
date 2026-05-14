@@ -95,6 +95,7 @@ bool ScreenManager::init()
         "Travel Management System");
     window.setFramerateLimit(60);
 
+    netBg->setFont(&font);
     netBg->init();
     return true;
 }
