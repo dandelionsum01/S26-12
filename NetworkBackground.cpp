@@ -1,4 +1,4 @@
-#include "NetworkBackground.h"
+ #include "NetworkBackground.h"
 
 static constexpr float DIST2_MIN =
 NetworkBackground::CONNECT_DIST_MIN * NetworkBackground::CONNECT_DIST_MIN;
